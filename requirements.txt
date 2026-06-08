@@ -1,3 +1,5 @@
 Flask
-anthropic
+PyMuPDF
+pymongo
 python-dotenv
+gunicorn
