@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jobzenix — Ragavi Admin Console</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#06050e;
+  --panel:rgba(255,255,255,0.03);
+  --s1:rgba(255,255,255,0.04);
+  --brd:rgba(255,255,255,0.07);
+  --brd2:rgba(255,255,255,0.12);
+  --tx:#f0eeff;
+  --tx2:rgba(240,238,255,0.6);
+  --tx3:rgba(240,238,255,0.3);
+  --gold:#ffc84a;
+  --gold2:rgba(255,200,74,0.12);
+  --goldbrd:rgba(255,200,74,0.25);
+  --rose:#ff6b8a;
+  --rose2:rgba(255,107,138,0.15);
+  --ok:#4ade80;
+  --ok2:rgba(74,222,128,0.15);
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;position:relative;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(255,200,74,0.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,200,74,0.015) 1px,transparent 1px);background-size:50px 50px;pointer-events:none;z-index:0}
+
+.sec-bar{position:fixed;top:0;left:0;right:0;height:48px;background:rgba(255,200,74,0.04);border-bottom:1px solid var(--goldbrd);display:flex;align-items:center;justify-content:center;gap:10px;z-index:100}
+.sec-bar-text{font-size:12px;color:rgba(255,200,74,0.85);font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+.sec-dot{width:6px;height:6px;background:var(--gold);border-radius:50%;animation:blink 2.5s ease infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+/* AUTH PORTAL */
+.auth-container{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:80px 24px 40px;position:relative;z-index:10}
+.auth-card{width:100%;max-width:440px;padding:40px;background:var(--panel);border:1px solid var(--brd2);border-radius:24px;backdrop-filter:blur(30px);box-shadow:0 40px 100px rgba(0,0,0,0.6)}
+
+.card-header{text-align:center;margin-bottom:28px}
+.shield-bg{width:64px;height:64px;margin:0 auto 16px;background:linear-gradient(135deg,rgba(255,200,74,0.15),rgba(255,200,74,0.03));border:1.5px solid var(--goldbrd);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:26px}
+.card-header h1{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-0.5px}
+.card-header p{font-size:13.5px;color:var(--tx3);margin-top:4px}
+
+.form-group{margin-bottom:18px}
+.form-group label{display:block;font-size:13px;font-weight:500;color:var(--tx2);margin-bottom:7px}
+.input-wrap{position:relative}
+.input-wrap .inp-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--tx3)}
+.input-wrap input{width:100%;padding:13px 16px 13px 42px;background:var(--s1);border:1px solid var(--brd2);border-radius:12px;font-family:inherit;font-size:14.5px;color:var(--tx);outline:none;transition:.2s}
+.input-wrap input:focus{border-color:var(--gold);background:rgba(255,200,74,0.03)}
+.err-msg{font-size:12px;color:var(--rose);margin-top:5px;display:none;text-align:center;padding:8px;background:var(--rose2);border-radius:8px}
+
+.btn-admin{width:100%;padding:14px;background:linear-gradient(135deg,#b8930a,var(--gold));color:#07080f;border:none;border-radius:12px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:.2s;margin-top:8px}
+.btn-admin:hover{transform:translateY(-1px);box-shadow:0 12px 30px rgba(255,200,74,0.25)}
+
+/* REALTIME DASHBOARD */
+.dashboard-wrapper{display:none;padding:80px 30px 30px;position:relative;z-index:10;animation:fadeIn 0.5s both}
+.dash-header{display:flex;justify-content:space-between;align-items:center;padding-bottom:20px;border-bottom:1px solid var(--brd);margin-bottom:30px}
+.logo-area h1{font-family:'Syne',sans-serif;font-size:24px;font-weight:800}
+.logo-area span{color:var(--gold)}
+.admin-profile{display:flex;align-items:center;gap:12px;background:var(--panel);padding:8px 18px;border-radius:100px;border:1px solid var(--brd)}
+.logout-btn{color:var(--rose);background:none;border:none;cursor:pointer;font-weight:700;margin-left:8px;font-family:inherit}
+
+/* TABLE STYLING */
+.panel{background:var(--panel);border:1px solid var(--brd);border-radius:20px;padding:24px;backdrop-filter:blur(20px)}
+.panel-title{font-size:16px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.04);padding-bottom:12px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;text-align:left}
+th{font-size:11px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;padding:14px 16px;border-bottom:1px solid var(--brd)}
+td{padding:16px;border-bottom:1px solid rgba(255,255,255,0.02);font-size:13.5px}
+
+.status-pill{display:inline-flex;padding:4px 10px;border-radius:100px;font-size:11.5px;font-weight:600}
+.status-pill.active{background:var(--ok2);color:var(--ok);border:1px solid rgba(74,222,128,0.2)}
+.status-pill.blocked{background:var(--rose2);color:var(--rose);border:1px solid rgba(255,107,138,0.2)}
+
+.action-btn{padding:6px 12px;border:1px solid var(--brd2);background:rgba(255,255,255,0.02);color:var(--tx);border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;transition:.2s}
+.action-btn:hover{background:var(--tx);color:#06050e}
+
+.tester-box{margin-top:25px;padding:15px;border:1px dashed var(--goldbrd);border-radius:12px;text-align:center;background:rgba(255,200,74,0.01)}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<div class="sec-bar">
+  <span class="sec-dot"></span>
+  <span class="sec-bar-text"> JOBZENIX INTERNAL CONTROL — HIGH SECURITY ZONE</span>
+</div>
+
+<div class="auth-container" id="authGate">
+  <div class="auth-card">
+    <div class="card-header">
+      <div class="shield-bg"></div>
+      <h1>Admin Gateway</h1>
+      <p>Authorized personnel validation required</p>
+    </div>
+
+    <form id="loginForm" onsubmit="executeLogin(event)">
+      <div class="form-group">
+        <label>Admin Username</label>
+        <div class="input-wrap">
+          <span class="inp-icon"></span>
+          <input type="text" id="logId" placeholder="Enter Username" required autocomplete="off">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <div class="input-wrap">
+          <span class="inp-icon"></span>
+          <input type="password" id="logPw" placeholder="••••••••••••" required>
+        </div>
+        <div class="err-msg" id="loginErrorMsg">Invalid Admin Username or Password!</div>
+      </div>
+      <button type="submit" class="btn-admin">Verify Credentials & Enter →</button>
+    </form>
+  </div>
+</div>
+
+<div class="dashboard-wrapper" id="dashboardPanel">
+  
+  <div class="dash-header">
+    <div class="logo-area">
+      <h1>Jobzenix <span>HQ Command Center</span></h1>
+    </div>
+    <div class="admin-profile">
+      <span> Active Session: <strong style="color:var(--gold)">Ragavi (Super Admin)</strong></span>
+      <button class="logout-btn" onclick="executeLogout()">[Logout ➔]</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title"> Real-Time Logged-In User Profiles & Control Hub</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>User Identity</th>
+            <th>Login Timestamp</th>
+            <th>Device & Environment</th>
+            <th>Live Status</th>
+            <th>Administrative Action</th>
+          </tr>
+        </thead>
+        <tbody id="userTableDataRows">
+          </tbody>
+      </table>
+    </div>
+
+    
+  </div>
+
+</div>
+
+<script>
+// Active database initiation blocks
+if (!localStorage.getItem('jz_live_database')) {
+  localStorage.setItem('jz_live_database', JSON.stringify([]));
+}
+
+// Session security check on browser boot up
+window.addEventListener('DOMContentLoaded', () => {
+  if (localStorage.getItem('ragavi_authenticated_session')) {
+    launchDashboard();
+  }
+});
+
+// HARDLOCKED CRITERIA CHECK (ragavi & ragaviragavi)
+function executeLogin(e) {
+  e.preventDefault();
+  const usernameInput = document.getElementById('logId').value.trim();
+  const passwordInput = document.getElementById('logPw').value;
+
+  // STRICT RULE ENFORCEMENT
+  if (usernameInput === "ragavi" && passwordInput === "ragaviragavi") {
+    localStorage.setItem('ragavi_authenticated_session', 'true');
+    document.getElementById('loginErrorMsg').style.display = 'none';
+    launchDashboard();
+  } else {
+    document.getElementById('loginErrorMsg').style.display = 'block';
+  }
+}
+
+function launchDashboard() {
+  document.getElementById('authGate').style.display = 'none';
+  document.getElementById('dashboardPanel').style.display = 'block';
+  renderLiveTableData();
+}
+
+// RENDER REAL TIME RUNNING MATRIX TABLE
+function renderLiveTableData(){
+
+fetch('/api/admin/users')
+.then(res => res.json())
+.then(activeUsers => {
+
+    const tbody =
+    document.getElementById(
+      'userTableDataRows'
+    );
+
+    tbody.innerHTML = '';
+
+    if(activeUsers.length === 0){
+
+      tbody.innerHTML =
+      `
+      <tr>
+      <td colspan="5"
+      style="text-align:center">
+      No Users Found
+      </td>
+      </tr>
+      `;
+
+      return;
+    }
+
+    activeUsers.forEach(user => {
+
+      tbody.innerHTML += `
+      <tr>
+
+      <td>
+      <strong>${user.name}</strong>
+      <br>
+      ${user.email}
+      </td>
+
+      <td>
+      ${user.login_time}
+      </td>
+
+      <td>
+      Web Browser
+      </td>
+
+      <td>
+      <span class="status-pill active">
+      ${user.status}
+      </span>
+      </td>
+
+      <td>
+<button
+class="action-btn"
+onclick="toggleUserStatus('${user.email}')">
+
+${user.status === 'Blocked'
+? 'Unblock User'
+: 'Block User'}
+
+</button>
+</td>
+      </tr>
+      `;
+    });
+
+});
+
+}
+
+// REALTIME MASTER CONTROL MATRIX: BLOCK / UNBLOCK OPERATION TRIGGER
+function toggleUserStatus(userEmail){
+
+fetch('/api/admin/toggle-user',{
+
+method:'POST',
+
+headers:{
+'Content-Type':'application/json'
+},
+
+body:JSON.stringify({
+email:userEmail
+})
+
+})
+.then(res=>res.json())
+.then(data=>{
+
+alert(data.message);
+
+renderLiveTableData();
+
+});
+
+}
+
+// MAIN LIVE USER STREAM LOGIN INJECTOR (Simulating Real Operations)
+setInterval(renderLiveTableData,3000);
+function executeLogout() {
+
+    // Remove admin session
+    localStorage.removeItem('ragavi_authenticated_session');
+
+    // Redirect to Get Started page
+    window.location.href = "/";
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jobzenix - AI Mock Interview Portal</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    html { scroll-behavior: smooth; }
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f172a, #4f46e5, #7c3aed, #ec4899);
+      overflow-y: auto;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      padding-top: 90px;
+    }
+    .app-header {
+      position: fixed; top: 0; left: 0; width: 100%;
+      padding: 20px 40px;
+      background: rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(15px);
+      z-index: 1000;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    .app-header .logo {
+      font-size: 26px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .app-header .logo span { color: #ec4899; }
+    .workspace-grid {
+      max-width: 1350px;
+      width: 95%;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 30px;
+      padding: 20px 0;
+    }
+    @media (min-width: 992px) {
+      .workspace-grid { grid-template-columns: 7fr 4fr; }
+    }
+    .card {
+      width: 100%;
+      backdrop-filter: blur(15px);
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 30px;
+      padding: 40px;
+      color: white;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+      transition: all 0.4s ease;
+    }
+    .card h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 34px;
+      font-weight: 700;
+    }
+    .subtitle {
+      text-align: center;
+      margin-bottom: 30px;
+      opacity: 0.85;
+      font-size: 14px;
+    }
+    label {
+      display: block;
+      margin-top: 18px;
+      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: rgba(255,255,255,0.9);
+    }
+    select, textarea, input[type="text"] {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 12px;
+      outline: none;
+      font-size: 15px;
+      margin-bottom: 10px;
+      background: rgba(15,23,42,0.6);
+      color: #fff;
+      transition: all 0.3s ease;
+    }
+    select:focus, textarea:focus, input[type="text"]:focus {
+      border-color: #ec4899;
+      background: rgba(15,23,42,0.85);
+      box-shadow: 0 0 15px rgba(236,72,153,0.3);
+    }
+    .textarea-container {
+      position: relative;
+      width: 100%;
+    }
+    .mic-btn {
+      position: absolute;
+      right: 15px;
+      bottom: 25px;
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background: #4f46e5;
+      border: none;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+    .mic-btn:hover { transform: scale(1.1); background: #ec4899; }
+    .mic-btn.listening {
+      background: #ef4444;
+      animation: micPulse 1.5s infinite;
+    }
+    @keyframes micPulse {
+      0% { box-shadow: 0 0 0 0 rgba(239,68,68,0.7); }
+      70% { box-shadow: 0 0 0 12px rgba(239,68,68,0); }
+      100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
+    }
+    button.action-btn {
+      width: 100%;
+      margin-top: 25px;
+      padding: 16px;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: white;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+    button.action-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(22,163,74,0.4);
+    }
+    button.action-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .robot-panel {
+      background: rgba(15,23,42,0.55);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 25px;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      align-self: flex-start;
+      position: sticky;
+      top: 110px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    }
+    @keyframes cyberFloat {
+      0% { transform: translateY(0px) scale(1); }
+      50% { transform: translateY(-15px) scale(1.03); filter: drop-shadow(0 15px 30px rgba(79,70,229,0.6)); }
+      100% { transform: translateY(0px) scale(1); }
+    }
+    .robot-wrapper {
+      width: 170px;
+      height: 170px;
+      margin-bottom: 20px;
+      animation: cyberFloat 4.5s ease-in-out infinite;
+    }
+    @keyframes pulseGlow {
+      0%, 100% { fill: #38bdf8; opacity: 0.8; }
+      50% { fill: #ec4899; opacity: 1; filter: drop-shadow(0 0 8px #ec4899); }
+    }
+    .robot-eye-pulse { animation: pulseGlow 3s ease-in-out infinite; }
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .bot-bubble {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 18px;
+      padding: 15px;
+      margin-top: 15px;
+      width: 100%;
+      text-align: left;
+    }
+    .bot-bubble p {
+      font-size: 13px;
+      color: #e2e8f0;
+      line-height: 1.6;
+      font-style: italic;
+    }
+    .panel-view { display: none; }
+    .panel-view.active-view { display: block; animation: fadeIn 0.45s ease forwards; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .analysis-container {
+      margin-top: 20px;
+      background: rgba(15,23,42,0.4);
+      border-radius: 16px;
+      border-left: 5px solid #ec4899;
+      padding: 20px;
+    }
+    .skill-matrix-tag {
+      display: inline-block;
+      background: rgba(236,72,153,0.15);
+      border: 1px solid rgba(236,72,153,0.3);
+      color: #f472b6;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      margin: 6px 4px 0 0;
+      text-transform: uppercase;
+    }
+    .metrics-pill {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 12px;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .qa-review-block {
+      background: rgba(15,23,42,0.5);
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 16px;
+      border-left: 4px solid #4f46e5;
+    }
+    .qa-review-block.correct { border-left-color: #22c55e; }
+    .qa-review-block.wrong { border-left-color: #ef4444; }
+    .qa-review-block .q-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #a5b4fc;
+      margin-bottom: 6px;
+    }
+    .qa-review-block .q-text {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+    .qa-review-block .user-ans {
+      font-size: 13px;
+      color: #cbd5e1;
+      margin-bottom: 8px;
+      font-style: italic;
+    }
+    .verdict-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .verdict-badge.correct {
+      background: rgba(34,197,94,0.2);
+      color: #4ade80;
+      border: 1px solid rgba(34,197,94,0.4);
+    }
+    .verdict-badge.wrong {
+      background: rgba(239,68,68,0.2);
+      color: #f87171;
+      border: 1px solid rgba(239,68,68,0.4);
+    }
+    .correct-ans-box, .study-plan-box {
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 8px;
+    }
+    .correct-ans-box {
+      background: rgba(34,197,94,0.1);
+      border: 1px solid rgba(34,197,94,0.3);
+    }
+    .study-plan-box {
+      background: rgba(251,191,36,0.1);
+      border: 1px solid rgba(251,191,36,0.3);
+    }
+    .correct-ans-box .label, .study-plan-box .label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .correct-ans-box .label { color: #4ade80; }
+    .study-plan-box .label { color: #fbbf24; }
+    .correct-ans-box .text {
+      font-size: 13px;
+      color: #d1fae5;
+      line-height: 1.6;
+    }
+    .study-plan-box .text {
+      font-size: 13px;
+      color: #fef3c7;
+      line-height: 1.6;
+    }
+    .loading-spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-top-color: #ec4899;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .ai-loading-box {
+      background: rgba(79,70,229,0.15);
+      border: 1px solid rgba(79,70,229,0.3);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .ai-loading-box span {
+      font-size: 13px;
+      color: #a5b4fc;
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="logo"><i class="fa-solid fa-graduation-cap"></i> Jobzenix<span>.</span></div>
+    <div style="font-size:12px;font-weight:600;color:#a5b4fc;background:rgba(79,70,229,0.2);padding:6px 14px;border-radius:20px;border:1px solid rgba(79,70,229,0.3);">
+      <i class="fa-solid fa-circle" style="color:#10b981;animation:pulseDot 2s infinite;"></i> AI Evaluation Online
+    </div>
+  </header>
+
+  <main class="workspace-grid">
+    <div class="interactive-area">
+      <div id="panel-setup" class="card panel-view active-view">
+        <h1>AI Mock Interview</h1>
+        <p class="subtitle">Practice interviews with AI and improve your confidence</p>
+
+        <label>Target Role</label>
+        <select id="role" onchange="showOtherRole()">
+          <option>Frontend Developer</option>
+          <option>Backend Developer</option>
+          <option>Full Stack Developer</option>
+          <option>Software Engineer</option>
+          <option>Data Analyst</option>
+          <option>AI Engineer</option>
+          <option>Cloud Engineer</option>
+          <option>Cyber Security Analyst</option>
+          <option>Others</option>
+        </select>
+        <input type="text" id="otherRole" placeholder="Enter Your Custom Role" style="display:none; margin-top:10px;">
+
+        <label>Experience Level</label>
+        <select id="experience">
+          <option>Fresher</option>
+          <option>1-2 Years Experienced</option>
+          <option>3-5 Years Experienced</option>
+          <option>6-9 Years Experienced</option>
+          <option>10+ Years Experienced</option>
+        </select>
+
+        <label>Interview Type</label>
+        <select id="type">
+          <option>Technical Interview</option>
+          <option>HR Interview</option>
+          <option>Behavioral Interview</option>
+          <option>Mixed Interview</option>
+        </select>
+
+        <label>Difficulty</label>
+        <select id="difficulty">
+          <option>Easy</option>
+          <option>Medium</option>
+          <option>Hard</option>
+        </select>
+
+        <label>Questions Count</label>
+        <select id="questions">
+          <option value="2">2 Questions</option>
+          <option value="5" selected>5 Questions</option>
+          <option value="10">10 Questions</option>
+        </select>
+
+        <button class="action-btn" id="btn-start" onclick="startInterviewWorkflow()">
+          <i class="fa-solid fa-play"></i> Start AI Interview
+        </button>
+      </div>
+
+      <div id="panel-simulation" class="card panel-view">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:10px;">
+          <h2 id="lbl-panel-title" style="font-size:18px;font-weight:700;color:#a5b4fc;">
+            <i class="fa-solid fa-terminal"></i> Live Interview Console
+          </h2>
+          <span id="lbl-counter" style="font-size:11px;background:#ec4899;padding:4px 10px;border-radius:6px;font-weight:700;">
+            Question 1 of 5
+          </span>
+        </div>
+
+        <div id="ai-generating-box" class="ai-loading-box" style="display:none;">
+          <div class="loading-spinner"></div>
+          <span>AI is generating your question...</span>
+        </div>
+
+        <div id="question-box" style="background:rgba(0,0,0,0.2);padding:20px;border-radius:12px;margin-bottom:20px;border-left:4px solid #4f46e5;">
+          <span style="font-size:10px;font-weight:700;color:#f472b6;text-transform:uppercase;display:block;margin-bottom:4px;">AI Generated Question</span>
+          <h3 id="lbl-question-display" style="font-size:15px;font-weight:500;line-height:1.6;color:#fff;">Loading...</h3>
+        </div>
+
+        <label>Your Answer</label>
+        <div class="textarea-container">
+          <textarea id="txt-user-response" rows="6" placeholder="Type or click the mic to speak your answer..."></textarea>
+          <button type="button" class="mic-btn" id="btn-mic" onclick="toggleVoiceRecognition()" title="Speak your answer">
+            <i class="fa-solid fa-microphone"></i>
+          </button>
+        </div>
+
+        <div id="pipeline-status-log" style="display:none;" class="ai-loading-box">
+          <div class="loading-spinner"></div>
+          <span>AI is analyzing your answer...</span>
+        </div>
+
+        <button class="action-btn" id="btn-submit" onclick="submitCandidateAnswerStep()">
+          <i class="fa-solid fa-paper-plane"></i> Submit Answer
+        </button>
+      </div>
+
+      <div id="panel-results" class="card panel-view">
+        <h2 style="text-align:center;font-size:28px;font-weight:800;color:#fff;margin-bottom:5px;">
+          <i class="fa-solid fa-square-poll-vertical" style="color:#4ade80;"></i> Interview Assessment
+        </h2>
+        <p class="subtitle">AI-powered detailed review of all your answers</p>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(150px,1fr));gap:15px;margin-bottom:25px;">
+          <div class="metrics-pill"><span style="font-size:11px;font-weight:600;color:#94a3b8;">Technical Score</span><span id="res-tech" style="font-weight:700;color:#38bdf8;font-size:16px;">--</span></div>
+          <div class="metrics-pill"><span style="font-size:11px;font-weight:600;color:#94a3b8;">Communication</span><span id="res-comm" style="font-weight:700;color:#c084fc;font-size:16px;">--</span></div>
+          <div class="metrics-pill"><span style="font-size:11px;font-weight:600;color:#fff;">Overall Score</span><span id="res-total" style="font-weight:800;color:#34d399;font-size:18px;">--</span></div>
+        </div>
+
+        <div class="analysis-container" style="margin-bottom:20px;">
+          <h3 style="font-size:15px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <i class="fa-solid fa-brain" style="color:#a5b4fc;"></i> Overall AI Feedback
+          </h3>
+          <p id="lbl-overall-feedback" style="font-size:13px;line-height:1.6;color:#e2e8f0;"></p>
+          <div id="box-skills-tags" style="margin-top:12px;display:flex;flex-wrap:wrap;"></div>
+        </div>
+
+        <div>
+          <h3 style="font-size:15px;font-weight:700;color:#fff;margin-bottom:15px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-list-check" style="color:#f472b6;"></i> Question-by-Question Review
+          </h3>
+          <div id="qa-reviews-container"></div>
+        </div>
+
+        <div id="results-loading" class="ai-loading-box" style="display:none;">
+          <div class="loading-spinner"></div>
+          <span>AI is generating your full report...</span>
+        </div>
+
+        <button class="action-btn" onclick="resetPortalToHome()" style="background:linear-gradient(135deg,#4f46e5,#3b82f6);margin-top:25px;">
+          <i class="fa-solid fa-rotate-left"></i> Take Another Mock Test
+        </button>
+      </div>
+    </div>
+
+    <aside class="robot-panel">
+      <div class="robot-wrapper">
+        <svg class="w-full h-full" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="robotBodyGrad" x1="0" y1="0" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#6366f1"/>
+              <stop offset="50%" stop-color="#a855f7"/>
+              <stop offset="100%" stop-color="#ec4899"/>
+            </linearGradient>
+          </defs>
+          <ellipse cx="100" cy="165" rx="35" ry="8" fill="rgba(236,72,153,0.35)" filter="blur(4px)"/>
+          <path d="M 80 150 Q 100 185 120 150 Z" fill="url(#robotBodyGrad)" opacity="0.5"/>
+          <rect x="45" y="40" width="110" height="90" rx="30" fill="url(#robotBodyGrad)"/>
+          <rect x="55" y="50" width="90" height="70" rx="20" fill="#0f172a"/>
+          <circle cx="80" cy="85" r="12" class="robot-eye-pulse"/>
+          <circle cx="80" cy="85" r="4" fill="white"/>
+          <circle cx="120" cy="85" r="12" class="robot-eye-pulse"/>
+          <circle cx="120" cy="85" r="4" fill="white"/>
+          <rect x="85" y="105" width="30" height="4" rx="2" fill="#a5b4fc" opacity="0.8"/>
+          <line x1="100" y1="140" x2="100" y2="155" stroke="#a855f7" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="100" cy="12" r="6" fill="#ec4899"/>
+        </svg>
+      </div>
+      <h3 id="lbl-robot-identity" style="color:#fff;font-size:18px;font-weight:700;letter-spacing:0.5px;">ZENIX-V4 Engine</h3>
+      <span id="lbl-robot-status-pill" style="font-size:9px;font-weight:700;background:rgba(56,189,248,0.15);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;padding:3px 12px;border-radius:20px;text-transform:uppercase;letter-spacing:1px;margin-top:6px;">System Ready</span>
+      <div class="bot-bubble">
+        <p id="lbl-robot-speech">Greetings candidate. Select your targeted role profile and interview configuration. I will generate adaptive AI questions dynamically based on your role, experience, and difficulty level.</p>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    let activeSelectedRole = "";
+    let activeExperience = "";
+    let activeType = "";
+    let activeDifficulty = "";
+    let activeQuestionsCount = 5;
+    let trackingIndex = 0;
+    let generatedQuestions = [];
+    let sessionAnswers = [];
+    let recognition;
+    let isListening = false;
+
+    function navigateActivePanel(id) {
+      document.querySelectorAll('.panel-view').forEach(p => p.classList.remove('active-view'));
+      document.getElementById(id).classList.add('active-view');
+      const botTitle = document.getElementById('lbl-robot-identity');
+      const botStatus = document.getElementById('lbl-robot-status-pill');
+      const botSpeech = document.getElementById('lbl-robot-speech');
+      if (id === 'panel-setup') {
+        botTitle.innerText = 'ZENIX-V4 Engine';
+        botStatus.innerText = 'System Ready';
+        botStatus.style.color = '#38bdf8';
+        botStatus.style.background = 'rgba(56,189,248,0.15)';
+        botSpeech.innerText = 'Ready to configure your next mock session. Select role and parameters.';
+      } else if (id === 'panel-simulation') {
+        botTitle.innerText = 'ZENIX Evaluator';
+        botStatus.innerText = 'Interview Active';
+        botStatus.style.color = '#ec4899';
+        botStatus.style.background = 'rgba(236,72,153,0.15)';
+      } else if (id === 'panel-results') {
+        botTitle.innerText = 'ZENIX Report Engine';
+        botStatus.innerText = 'Analysis Complete';
+        botStatus.style.color = '#34d399';
+        botStatus.style.background = 'rgba(52,211,153,0.15)';
+        botSpeech.innerText = 'Interview complete! Here is your full performance review with corrections and study recommendations.';
+      }
+    }
+
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new SR();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+
+      recognition.onresult = function(e) {
+        let final = '';
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          if (e.results[i].isFinal) final += e.results[i][0].transcript;
+        }
+        if (final) {
+          let ta = document.getElementById('txt-user-response');
+          ta.value = ta.value ? ta.value + ' ' + final : final;
+        }
+      };
+
+      recognition.onerror = stopListeningMode;
+      recognition.onend = stopListeningMode;
+    }
+
+    function toggleVoiceRecognition() {
+      if (!recognition) {
+        alert('Web Speech API not supported. Use Chrome.');
+        return;
+      }
+      if (isListening) {
+        recognition.stop();
+        stopListeningMode();
+      } else {
+        try {
+          recognition.start();
+          isListening = true;
+          let btn = document.getElementById('btn-mic');
+          btn.classList.add('listening');
+          btn.innerHTML = '<i class="fa-solid fa-stop"></i>';
+          document.getElementById('lbl-robot-speech').innerText = 'Listening... Click stop when done.';
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
+
+    function stopListeningMode() {
+      isListening = false;
+      let btn = document.getElementById('btn-mic');
+      if (btn) {
+        btn.classList.remove('listening');
+        btn.innerHTML = '<i class="fa-solid fa-microphone"></i>';
+      }
+    }
+
+    function showOtherRole() {
+      let v = document.getElementById('role').value;
+      document.getElementById('otherRole').style.display = v === 'Others' ? 'block' : 'none';
+    }
+
+    function generateFallbackQuestions() {
+      return Array.from({ length: activeQuestionsCount }, (_, i) => ({
+        question: `Question ${i + 1}: Describe a key concept you know well related to ${activeSelectedRole}.`,
+        topic: activeSelectedRole
+      }));
+    }
+
+    function fakeEvaluationForQuestion(q, answer) {
+      const a = (answer || '').toLowerCase();
+      const good = a.length > 40 && (
+        a.includes('because') || a.includes('example') || a.includes('project') || a.includes('experience') || a.includes('time')
+      );
+      if (good) {
+        return {
+          question: q.question,
+          useranswer: answer,
+          verdict: "correct",
+          correctanswer: "",
+          iswrong: false,
+          concepttostudy: "",
+          studydays: 0,
+          studyplan: ""
+        };
+      }
+      return {
+        question: q.question,
+        useranswer: answer,
+        verdict: "wrong",
+        correctanswer: `A stronger answer for ${q.topic} should define the concept clearly, mention how it works, and give a short practical example.`,
+        iswrong: true,
+        concepttostudy: `Core basics of ${q.topic}`,
+        studydays: 3,
+        studyplan: `Learn the fundamentals of ${q.topic}, revise one concept daily, and practice answering with definition + example + outcome.`
+      };
+    }
+
+    function buildFinalReportFromSession() {
+      const reviews = sessionAnswers.map(s => fakeEvaluationForQuestion(s.questionObj, s.answer));
+      const wrongCount = reviews.filter(r => r.iswrong).length;
+      const total = reviews.length || 1;
+      const overallScore = Math.max(50, Math.round(100 - (wrongCount * 100 / total) * 0.8));
+      const techScore = Math.max(45, overallScore - 2);
+      const commScore = Math.max(45, overallScore - 4);
+
+      return {
+        technicalscore: techScore,
+        communicationscore: commScore,
+        overallscore: overallScore,
+        overallfeedback: wrongCount === 0
+          ? "Excellent performance. Your answers were clear, relevant, and mostly complete."
+          : "You showed partial understanding, but some answers missed key concepts. Focus on the suggested study areas and strengthen examples in your responses.",
+        skillstoimprove: wrongCount === 0
+          ? ["Consistency", "Clarity", "Confidence"]
+          : ["Concept Recall", "Answer Structure", "Practical Examples"],
+        questionreviews: reviews
+      };
+    }
+
+    async function startInterviewWorkflow() {
+      let roleDropdown = document.getElementById('role').value;
+      if (roleDropdown === 'Others') {
+        activeSelectedRole = document.getElementById('otherRole').value.trim();
+        if (!activeSelectedRole) {
+          alert('Please enter your custom role.');
+          return;
+        }
+      } else {
+        activeSelectedRole = roleDropdown;
+      }
+
+      activeExperience = document.getElementById('experience').value;
+      activeType = document.getElementById('type').value;
+      activeDifficulty = document.getElementById('difficulty').value;
+      activeQuestionsCount = parseInt(document.getElementById('questions').value);
+
+      trackingIndex = 0;
+      generatedQuestions = generateFallbackQuestions();
+      sessionAnswers = [];
+
+      document.getElementById('btn-start').disabled = true;
+      document.getElementById('btn-start').innerHTML = '<div class="loading-spinner"></div> Generating Questions...';
+      document.getElementById('lbl-panel-title').innerHTML = `<i class="fa-solid fa-terminal"></i> ${activeType} Session`;
+      document.getElementById('txt-user-response').value = '';
+      navigateActivePanel('panel-simulation');
+
+      setTimeout(() => {
+        document.getElementById('btn-start').disabled = false;
+        document.getElementById('btn-start').innerHTML = '<i class="fa-solid fa-play"></i> Start AI Interview';
+        renderQuestion();
+      }, 600);
+    }
+
+    function renderQuestion() {
+      if (trackingIndex < generatedQuestions.length) {
+        let q = generatedQuestions[trackingIndex];
+        document.getElementById('lbl-question-display').innerText = q.question;
+        document.getElementById('lbl-counter').innerText = `Question ${trackingIndex + 1} of ${generatedQuestions.length}`;
+        document.getElementById('txt-user-response').value = '';
+        document.getElementById('lbl-robot-speech').innerText = q.question;
+        document.getElementById('ai-generating-box').style.display = 'none';
+        document.getElementById('question-box').style.display = 'block';
+      } else {
+        buildResultsPanel();
+      }
+    }
+
+    async function submitCandidateAnswerStep() {
+      if (isListening && recognition) {
+        recognition.stop();
+        stopListeningMode();
+      }
+
+      let answer = document.getElementById('txt-user-response').value.trim();
+      if (!answer) {
+        alert('Please enter or speak your answer before submitting.');
+        return;
+      }
+
+      sessionAnswers.push({
+        questionObj: generatedQuestions[trackingIndex],
+        answer: answer
+      });
+
+      document.getElementById('btn-submit').disabled = true;
+      document.getElementById('pipeline-status-log').style.display = 'flex';
+      document.getElementById('lbl-robot-speech').innerText = 'Analyzing your answer...';
+
+      await new Promise(r => setTimeout(r, 700));
+
+      document.getElementById('pipeline-status-log').style.display = 'none';
+      document.getElementById('btn-submit').disabled = false;
+
+      trackingIndex++;
+      renderQuestion();
+    }
+
+    function buildResultsPanel() {
+      navigateActivePanel('panel-results');
+      document.getElementById('results-loading').style.display = 'flex';
+      document.getElementById('qa-reviews-container').innerHTML = '';
+      document.getElementById('res-tech').innerText = '--';
+      document.getElementById('res-comm').innerText = '--';
+      document.getElementById('res-total').innerText = '--';
+      document.getElementById('lbl-overall-feedback').innerText = '';
+      document.getElementById('box-skills-tags').innerHTML = '';
+
+      setTimeout(() => {
+        const result = buildFinalReportFromSession();
+        document.getElementById('results-loading').style.display = 'none';
+
+        document.getElementById('res-tech').innerText = result.technicalscore;
+        document.getElementById('res-comm').innerText = result.communicationscore;
+        document.getElementById('res-total').innerText = result.overallscore;
+        document.getElementById('lbl-overall-feedback').innerText = result.overallfeedback;
+
+        if (result.skillstoimprove && result.skillstoimprove.length) {
+          document.getElementById('box-skills-tags').innerHTML = result.skillstoimprove.map(s => `<span class="skill-matrix-tag">${s}</span>`).join('');
+        }
+
+        const container = document.getElementById('qa-reviews-container');
+        result.questionreviews.forEach((r, i) => {
+          const isWrong = r.iswrong || r.verdict === 'wrong';
+          const div = document.createElement('div');
+          div.className = `qa-review-block ${isWrong ? 'wrong' : 'correct'}`;
+          div.innerHTML = `
+            <div class="q-label">Question ${i + 1}</div>
+            <div class="q-text">${r.question}</div>
+            <div class="user-ans">Your answer: ${r.useranswer ? r.useranswer : 'No answer'}</div>
+            <span class="verdict-badge ${isWrong ? 'wrong' : 'correct'}">${isWrong ? 'Wrong / Needs Improvement' : 'Correct'}</span>
+            ${isWrong ? `
+              <div class="correct-ans-box">
+                <div class="label"><i class="fa-solid fa-check-circle"></i> Correct Answer</div>
+                <div class="text">${r.correctanswer || ''}</div>
+              </div>
+              <div class="study-plan-box">
+                <div class="label"><i class="fa-solid fa-book-open"></i> Concept to Study</div>
+                <div class="text">${r.concepttostudy || ''}</div>
+              </div>
+              <div class="study-plan-box">
+                <div class="label"><i class="fa-solid fa-clock"></i> Estimated Study Time</div>
+                <div class="text">${r.studydays || 0} day${(r.studydays || 0) !== 1 ? 's' : ''} of focused practice</div>
+              </div>
+              <div class="study-plan-box">
+                <div class="label"><i class="fa-solid fa-lightbulb"></i> Learning Suggestion</div>
+                <div class="text">${r.studyplan || ''}</div>
+              </div>
+            ` : ''}
+          `;
+          container.appendChild(div);
+        });
+      }, 600);
+    }
+
+    function resetPortalToHome() {
+      trackingIndex = 0;
+      generatedQuestions = [];
+      sessionAnswers = [];
+      document.getElementById('txt-user-response').value = '';
+      document.getElementById('qa-reviews-container').innerHTML = '';
+      document.getElementById('box-skills-tags').innerHTML = '';
+      document.getElementById('lbl-overall-feedback').innerText = '';
+      document.getElementById('res-tech').innerText = '--';
+      document.getElementById('res-comm').innerText = '--';
+      document.getElementById('res-total').innerText = '--';
+      navigateActivePanel('panel-setup');
+    }
+
+    showOtherRole();
+  </script>
+</body>
+</html>

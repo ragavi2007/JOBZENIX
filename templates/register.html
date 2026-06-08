@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jobzenix — Create Account</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#04080f;--bg2:#080e1c;
+  --teal:#00e5b8;--teal2:#00ffcc;--teal-dim:rgba(0,229,184,0.12);
+  --orange:#ff5c35;--gold:#ffd166;
+  --white:#eef2ff;--grey:#7a869a;--grey2:#3a4255;
+  --card:rgba(255,255,255,0.035);--bdr:rgba(255,255,255,0.07);
+}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);overflow-x:hidden}
+
+/* ANIMATED BACKGROUND */
+.bg-canvas{position:fixed;inset:0;z-index:0;overflow:hidden}
+.orbit{position:absolute;border-radius:50%;border:1px solid;animation:spin linear infinite}
+.o1{width:600px;height:600px;border-color:rgba(0,229,184,0.06);top:-200px;right:-200px;animation-duration:40s}
+.o2{width:900px;height:900px;border-color:rgba(0,229,184,0.035);top:-400px;right:-400px;animation-duration:70s}
+.o3{width:400px;height:400px;border-color:rgba(255,92,53,0.05);bottom:-150px;left:-150px;animation-duration:55s;animation-direction:reverse}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.glow-teal{position:absolute;width:500px;height:500px;background:radial-gradient(circle,rgba(0,229,184,0.08) 0%,transparent 70%);top:-100px;right:-100px;pointer-events:none}
+.glow-orange{position:absolute;width:400px;height:400px;background:radial-gradient(circle,rgba(255,92,53,0.06) 0%,transparent 70%);bottom:0;left:0;pointer-events:none}
+.grid-lines{position:absolute;inset:0;background-image:linear-gradient(rgba(0,229,184,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,184,0.025) 1px,transparent 1px);background-size:50px 50px}
+
+/* LAYOUT */
+.page{position:relative;z-index:1;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px}
+
+/* CARD */
+.card{
+  width:100%;max-width:920px;
+  background:rgba(8,14,28,0.92);
+  border:1px solid rgba(0,229,184,0.12);
+  border-radius:28px;
+  overflow:hidden;
+  display:grid;grid-template-columns:1fr 1.1fr;
+  box-shadow:0 40px 120px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.04);
+  animation:cardIn .7s cubic-bezier(0.16,1,0.3,1) both
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(40px) scale(0.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+
+/* LEFT DECORATIVE */
+.card-left{
+  background:linear-gradient(150deg,rgba(0,229,184,0.08) 0%,rgba(4,8,15,0) 60%);
+  border-right:1px solid rgba(0,229,184,0.08);
+  padding:52px 44px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  position:relative;overflow:hidden
+}
+.card-left::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--teal),var(--orange),transparent)}
+.cl-logo{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:var(--teal);margin-bottom:40px}
+.cl-logo span{color:var(--orange)}
+.cl-heading{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;line-height:1.1;letter-spacing:-1px;color:var(--white);margin-bottom:16px}
+.cl-heading em{font-style:normal;color:var(--teal)}
+.cl-sub{font-size:15px;color:var(--grey);line-height:1.7;font-weight:300;margin-bottom:36px}
+.steps{display:flex;flex-direction:column;gap:16px}
+.step{display:flex;align-items:center;gap:14px;opacity:.4;transition:opacity .4s}
+.step.active{opacity:1}
+.step-num{width:34px;height:34px;border-radius:10px;background:var(--teal-dim);border:1px solid rgba(0,229,184,0.2);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--teal);flex-shrink:0}
+.step.active .step-num{background:var(--teal);color:#04080f}
+.step-info strong{display:block;font-size:14px;color:var(--white);font-weight:600;margin-bottom:2px}
+.step-info span{font-size:12.5px;color:var(--grey)}
+.progress-bar{height:3px;background:rgba(255,255,255,0.07);border-radius:3px;margin:40px 0 0;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--orange));border-radius:3px;transition:width .5s ease;width:0%}
+
+/* RIGHT FORM */
+.card-right{padding:52px 48px;display:flex;flex-direction:column}
+.form-title{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.5px;color:var(--white);margin-bottom:6px}
+.form-sub{font-size:14px;color:var(--grey);margin-bottom:32px}
+.form-sub a{color:var(--teal);text-decoration:none;font-weight:500}
+
+/* STEPS */
+.step-form{display:none;flex-direction:column;gap:16px}
+.step-form.show{display:flex;animation:stepIn .4s ease both}
+@keyframes stepIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+
+.fg{display:flex;flex-direction:column;gap:6px}
+.fg label{font-size:13px;font-weight:600;color:var(--grey);letter-spacing:.3px}
+.iw{position:relative}
+.iw input,.iw select{
+  width:100%;padding:13px 16px 13px 44px;
+  background:rgba(255,255,255,0.04);
+  border:1.5px solid var(--bdr);border-radius:12px;
+  color:var(--white);font-family:'DM Sans',sans-serif;font-size:15px;
+  outline:none;transition:all .22s;-webkit-appearance:none
+}
+.iw input::placeholder{color:var(--grey2)}
+.iw input:focus,.iw select:focus{border-color:var(--teal);background:rgba(0,229,184,0.04);box-shadow:0 0 0 4px rgba(0,229,184,0.08)}
+.ii{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:17px;pointer-events:none}
+.eye{position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:15px;color:var(--grey)}
+.eye:hover{color:var(--teal)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.strength-bar{height:3px;border-radius:3px;margin-top:6px;background:var(--grey2);overflow:hidden;position:relative}
+.sb-fill{height:100%;width:0%;border-radius:3px;transition:width .4s,background .4s}
+.strength-label{font-size:11.5px;margin-top:4px;color:var(--grey)}
+
+.btn-next,.btn-back,.btn-submit{
+  font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;
+  border:none;border-radius:12px;cursor:pointer;padding:14px;transition:all .22s
+}
+.btn-next,.btn-submit{
+  background:linear-gradient(135deg,var(--teal),var(--teal2));
+  color:#04080f;box-shadow:0 4px 20px rgba(0,229,184,0.2)
+}
+.btn-next:hover,.btn-submit:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(0,229,184,0.35)}
+.btn-back{background:rgba(255,255,255,0.05);color:var(--grey);border:1px solid var(--bdr)}
+.btn-back:hover{background:rgba(255,255,255,0.09);color:var(--white)}
+.btn-row{display:flex;gap:10px;margin-top:4px}
+.btn-row .btn-back{flex:0 0 48px}
+.btn-row .btn-next,.btn-row .btn-submit{flex:1}
+
+.soc-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.soc-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:11px;border-radius:11px;border:1.5px solid var(--bdr);background:var(--card);color:var(--grey);font-size:13.5px;font-weight:500;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif}
+.soc-btn:hover{border-color:rgba(255,255,255,0.2);color:var(--white);background:rgba(255,255,255,0.06)}
+.or-div{display:flex;align-items:center;gap:12px;margin:4px 0}
+.or-line{flex:1;height:1px;background:var(--bdr)}
+.or-txt{font-size:12px;color:var(--grey2)}
+.terms{font-size:12.5px;color:var(--grey);line-height:1.6}
+.terms a{color:var(--teal);text-decoration:none}
+.error-msg{font-size:12.5px;color:#ff5c7a;display:none;margin-top:2px}
+.success-overlay{
+  position:fixed;inset:0;background:var(--bg);z-index:999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .5s
+}
+.success-overlay.show{opacity:1;pointer-events:all}
+.success-icon{width:100px;height:100px;background:linear-gradient(135deg,var(--teal),var(--teal2));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:48px;margin-bottom:28px;animation:popIn .6s cubic-bezier(0.175,0.885,0.32,1.275) .3s both}
+@keyframes popIn{from{transform:scale(0)}to{transform:scale(1)}}
+.success-overlay h2{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;color:var(--white);margin-bottom:12px;letter-spacing:-1px}
+.success-overlay p{font-size:16px;color:var(--grey);margin-bottom:36px}
+.btn-goto-dash{font-family:'DM Sans',sans-serif;font-size:16px;font-weight:700;background:linear-gradient(135deg,var(--teal),var(--teal2));color:#04080f;border:none;cursor:pointer;padding:16px 44px;border-radius:14px;transition:all .22s;box-shadow:0 8px 28px rgba(0,229,184,0.3)}
+.btn-goto-dash:hover{transform:translateY(-2px);box-shadow:0 14px 36px rgba(0,229,184,0.45)}
+
+/* Select fix */
+.iw select option{background:#0a0f1e;color:var(--white)}
+
+@media(max-width:700px){
+  .card{grid-template-columns:1fr}.card-left{display:none}.card-right{padding:36px 24px}
+}
+</style>
+</head>
+<body>
+<div class="bg-canvas">
+  <div class="grid-lines"></div>
+  <div class="orbit o1"></div>
+  <div class="orbit o2"></div>
+  <div class="orbit o3"></div>
+  <div class="glow-teal"></div>
+  <div class="glow-orange"></div>
+</div>
+
+<div class="page">
+  <div class="card">
+    <!-- LEFT -->
+    <div class="card-left">
+      <div>
+        <div class="cl-logo">Job<span>zenix</span></div>
+        <div class="cl-heading">Start Your<br><em>Career Journey</em><br>Today</div>
+        <div class="cl-sub">3 quick steps to your AI-powered career platform. Takes less than 2 minutes.</div>
+        <div class="steps">
+          <div class="step active" id="ls1">
+            <div class="step-num" id="sn1">1</div>
+            <div class="step-info"><strong>Personal Info</strong><span>Name, email & password</span></div>
+          </div>
+          <div class="step" id="ls2">
+            <div class="step-num" id="sn2">2</div>
+            <div class="step-info"><strong>Career Details</strong><span>Your role & experience</span></div>
+          </div>
+          <div class="step" id="ls3">
+            <div class="step-num" id="sn3">3</div>
+            <div class="step-info"><strong>Goals & Preferences</strong><span>What you're looking for</span></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="progress-bar"><div class="progress-fill" id="pf"></div></div>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="card-right">
+      <div class="form-title" id="fTitle">Create Your Account</div>
+      <div class="form-sub" id="fSub">Already have one? <a href="login">Sign in</a></div>
+
+      <!-- STEP 1 -->
+      <div class="step-form show" id="sf1">
+        <div class="row2">
+          <div class="fg">
+            <label>FIRST NAME</label>
+            <div class="iw"><span class="ii"></span><input type="text" id="fname" placeholder="John"></div>
+            <span class="error-msg" id="e-fname">Required</span>
+          </div>
+          <div class="fg">
+            <label>LAST NAME</label>
+            <div class="iw"><span class="ii"></span><input type="text" id="lname" placeholder="Doe"></div>
+          </div>
+        </div>
+        <div class="fg">
+          <label>EMAIL ADDRESS</label>
+          <div class="iw"><span class="ii"></span><input type="email" id="email" placeholder="john@example.com"></div>
+          <span class="error-msg" id="e-email">Enter a valid email</span>
+        </div>
+        <div class="fg">
+          <label>PASSWORD</label>
+          <div class="iw"><span class="ii"></span><input type="password" id="pwd" placeholder="Create a strong password" oninput="checkStrength(this)"><span class="eye" onclick="toggleEye('pwd',this)">👁</span></div>
+          <div class="strength-bar"><div class="sb-fill" id="sbf"></div></div>
+          <div class="strength-label" id="slbl">Enter password</div>
+        </div>
+        <div class="fg">
+          <label>CONFIRM PASSWORD</label>
+          <div class="iw"><span class="ii"></span><input type="password" id="cpwd" placeholder="Repeat password"><span class="eye" onclick="toggleEye('cpwd',this)">👁</span></div>
+          <span class="error-msg" id="e-cpwd">Passwords don't match</span>
+        </div>
+        <div class="or-div"><div class="or-line"></div><span class="or-txt">or register with</span><div class="or-line"></div></div>
+        
+        
+        <button class="btn-next" onclick="goStep(2)">Continue →</button>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="step-form" id="sf2">
+        <div class="fg">
+          <label>JOB TITLE / ROLE</label>
+          <div class="iw"><span class="ii"></span><input type="text" id="jobtitle" placeholder="e.g. Software Engineer, Product Manager"></div>
+        </div>
+        <div class="fg">
+          <label>EXPERIENCE LEVEL</label>
+          <div class="iw"><span class="ii"></span>
+            <select id="exp">
+              <option value="">Select experience level</option>
+              <option>Fresher / Entry Level (0–1 yr)</option>
+              <option>Junior (1–3 yrs)</option>
+              <option>Mid-Level (3–6 yrs)</option>
+              <option>Senior (6–10 yrs)</option>
+              <option>Lead / Manager (10+ yrs)</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg">
+          <label>INDUSTRY</label>
+          <div class="iw"><span class="ii"></span>
+            <select id="industry">
+              <option value="">Select your industry</option>
+              <option>Technology / Software</option>
+              <option>Finance / Banking</option>
+              <option>Healthcare</option>
+              <option>Marketing / Advertising</option>
+              <option>Design / Creative</option>
+              <option>Data / Analytics</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg">
+          <label>CURRENT LOCATION</label>
+          <div class="iw"><span class="ii"></span><input type="text" id="location" placeholder="e.g. Chennai, India"></div>
+        </div>
+        <div class="fg">
+          <label>LINKEDIN URL (OPTIONAL)</label>
+          <div class="iw"><span class="ii"></span><input type="text" id="linkedin" placeholder="linkedin.com/in/yourname"></div>
+        </div>
+        <div class="btn-row">
+          <button class="btn-back" onclick="goStep(1)">←</button>
+          <button class="btn-next" onclick="goStep(3)">Continue →</button>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="step-form" id="sf3">
+        <div class="fg">
+          <label>JOB SEARCH STATUS</label>
+          <div class="iw"><span class="ii"></span>
+            <select id="status">
+              <option value="">Select your status</option>
+              <option>Actively looking</option>
+              <option>Open to opportunities</option>
+              <option>Just exploring</option>
+              <option>Not looking right now</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg">
+          <label>TARGET ROLE</label>
+          <div class="iw"><span class="ii"></span><input type="text" id="target" placeholder="e.g. Senior Product Manager at a startup"></div>
+        </div>
+        <div class="fg">
+          <label>PREFERRED WORK TYPE</label>
+          <div class="iw"><span class="ii"></span>
+            <select id="worktype">
+              <option value="">Select work preference</option>
+              <option>Remote</option>
+              <option>Hybrid</option>
+              <option>On-site</option>
+              <option>Flexible</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg">
+          <label>HOW DID YOU HEAR ABOUT US?</label>
+          <div class="iw"><span class="ii"></span>
+            <select id="source">
+              <option value="">Select an option</option>
+              <option>Google Search</option>
+              <option>LinkedIn</option>
+              <option>Friend / Colleague</option>
+              <option>Social Media</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn-back" onclick="goStep(2)">←</button>
+          <button class="btn-submit" onclick="submitForm()">Create My Account </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SUCCESS OVERLAY -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-icon">✓</div>
+  <h2>Welcome to Jobzenix!</h2>
+  <p id="welcomeName">Your account is ready. Let's land your dream job.</p>
+  <button class="btn-goto-dash" onclick="gotoDash()">Go to Dashboard →</button>
+</div>
+
+<script>
+let currentStep = 1;
+const steps = [null, 'sf1','sf2','sf3'];
+const leftSteps = [null,'ls1','ls2','ls3'];
+const titles = [null,'Create Your Account','Career Details','Almost Done!'];
+const subs = [null,'Already have one? <a href="login.html">Sign in</a>','Tell us about your background','Set your preferences'];
+const progress = [null, 33, 66, 100];
+
+function goStep(n) {
+  if (n === 2) {
+    const email = document.getElementById('email').value;
+    const pwd = document.getElementById('pwd').value;
+    const cpwd = document.getElementById('cpwd').value;
+    const fname = document.getElementById('fname').value;
+    let ok = true;
+    document.getElementById('e-fname').style.display = (!fname) ? 'block' : 'none'; if(!fname) ok=false;
+    document.getElementById('e-email').style.display = (!email.includes('@')) ? 'block' : 'none'; if(!email.includes('@')) ok=false;
+    document.getElementById('e-cpwd').style.display = (pwd !== cpwd || !pwd) ? 'block' : 'none'; if(pwd !== cpwd || !pwd) ok=false;
+    if (!ok) return;
+  }
+  document.getElementById(steps[currentStep]).classList.remove('show');
+  document.getElementById(leftSteps[currentStep]).classList.remove('active');
+  currentStep = n;
+  document.getElementById(steps[currentStep]).classList.add('show');
+  document.getElementById(leftSteps[currentStep]).classList.add('active');
+  // Mark previous as done
+  for(let i=1;i<n;i++){
+    document.getElementById('sn'+i).textContent = '✓';
+  }
+  document.getElementById('fTitle').textContent = titles[n];
+  document.getElementById('fSub').innerHTML = subs[n];
+  document.getElementById('pf').style.width = progress[n] + '%';
+}
+
+function checkStrength(inp) {
+  const v = inp.value;
+  const sbf = document.getElementById('sbf');
+  const lbl = document.getElementById('slbl');
+  if (v.length < 4) { sbf.style.width='20%'; sbf.style.background='#ff4d6d'; lbl.textContent='Too short'; lbl.style.color='#ff4d6d'; }
+  else if (v.length < 8) { sbf.style.width='45%'; sbf.style.background='#ff9f1c'; lbl.textContent='Fair'; lbl.style.color='#ff9f1c'; }
+  else if (v.length < 12 || !/[A-Z]/.test(v) || !/[0-9]/.test(v)) { sbf.style.width='70%'; sbf.style.background='#2ec4b6'; lbl.textContent='Good'; lbl.style.color='#2ec4b6'; }
+  else { sbf.style.width='100%'; sbf.style.background='var(--teal)'; lbl.textContent='Strong ✓'; lbl.style.color='var(--teal)'; }
+}
+
+function toggleEye(id, el) {
+  const inp = document.getElementById(id);
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  el.textContent = inp.type === 'password' ? '👁' : '';
+}
+function submitForm() {
+
+  const fname = document.getElementById('fname').value;
+  const lname = document.getElementById('lname').value;
+  const email = document.getElementById('email').value;
+  const pwd = document.getElementById('pwd').value;
+
+  const btn = document.querySelector('.btn-submit');
+  btn.textContent = 'Creating account...';
+
+  fetch("/api/register", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      name: fname + " " + lname,
+      email: email,
+      password: pwd
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+
+    if(data.status === "ok") {
+
+      document.getElementById('welcomeName').textContent =
+        `Hey ${fname}! Your account is ready.`;
+
+      document.getElementById('successOverlay').classList.add('show');
+
+    } 
+    else if(data.status === "exists") {
+      alert("User already exists");
+    } 
+    else {
+      alert("Registration failed");
+    }
+
+  });
+}
+function gotoDash() {
+
+  const users =
+  JSON.parse(localStorage.getItem("users")) || [];
+
+  const latestUser =
+  users[users.length - 1];
+
+  localStorage.setItem(
+      "currentUser",
+      JSON.stringify(latestUser)
+  );
+
+  // Direct Dashboard
+  window.location.href = "dashboard";
+
+}
+</script>
+</body>
+</html>

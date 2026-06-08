@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Jodzenix – Profile</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0c10; --surface: #111318; --card: #16191f;
+    --border: rgba(255,255,255,0.06); --accent: #c8f04c; --accent2: #4cf0b8;
+    --text: #e8eaf0; --muted: #6b7280; --sidebar-w: 240px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; display:flex; min-height:100vh; overflow-x:hidden; }
+  body::before {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background:
+      radial-gradient(ellipse 600px 400px at 80% 10%, rgba(200,240,76,0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 400px 500px at 10% 80%, rgba(76,240,184,0.05) 0%, transparent 70%);
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar { width:var(--sidebar-w); min-height:100vh; background:var(--surface); border-right:1px solid var(--border); display:flex; flex-direction:column; padding:28px 0; position:fixed; top:0; left:0; z-index:10; }
+  .logo { padding:0 24px 28px; font-family:'Syne',sans-serif; font-size:22px; font-weight:800; letter-spacing:-.5px; color:var(--text); border-bottom:1px solid var(--border); }
+  .logo span { color:var(--accent); }
+  .nav { padding:24px 12px; flex:1; display:flex; flex-direction:column; gap:4px; }
+  .nav a { display:flex; align-items:center; gap:12px; padding:11px 14px; border-radius:10px; text-decoration:none; color:var(--muted); font-size:14px; font-weight:500; transition:all .2s; }
+  .nav a:hover { background:rgba(255,255,255,0.05); color:var(--text); }
+  .nav a.active { background:rgba(200,240,76,0.1); color:var(--accent); }
+  .nav a .icon { font-size:17px; width:22px; text-align:center; }
+  .sidebar-footer { padding:16px 12px; border-top:1px solid var(--border); }
+  .sidebar-footer a { display:flex; align-items:center; gap:12px; padding:11px 14px; border-radius:10px; text-decoration:none; color:var(--muted); font-size:14px; font-weight:500; transition:all .2s; }
+  .sidebar-footer a:hover { background:rgba(255,80,80,0.08); color:#ff6b6b; }
+  .sidebar-footer a .icon { font-size:17px; width:22px; text-align:center; }
+
+  /* ── MAIN ── */
+  .main { margin-left:var(--sidebar-w); flex:1; padding:44px 48px; position:relative; z-index:1; }
+  .page-header { margin-bottom:36px; }
+  .page-header h1 { font-family:'Syne',sans-serif; font-size:28px; font-weight:800; }
+  .page-header p { color:var(--muted); font-size:14px; margin-top:5px; }
+
+  /* ── PROFILE HERO ── */
+  .profile-hero { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:36px; display:flex; align-items:center; gap:32px; margin-bottom:28px; position:relative; overflow:hidden; }
+  .profile-hero::before { content:''; position:absolute; top:-40px; right:-40px; width:220px; height:220px; background:radial-gradient(circle, rgba(200,240,76,0.12) 0%, transparent 70%); border-radius:50%; pointer-events:none; }
+  .avatar-wrap { position:relative; flex-shrink:0; }
+  .avatar { width:96px; height:96px; border-radius:50%; background:linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%); display:flex; align-items:center; justify-content:center; font-family:'Syne',sans-serif; font-size:36px; font-weight:800; color:#0a0c10; }
+  .avatar-badge { position:absolute; bottom:4px; right:4px; width:18px; height:18px; background:#22c55e; border-radius:50%; border:3px solid var(--card); }
+  .profile-info h2 { font-family:'Syne',sans-serif; font-size:22px; font-weight:700; }
+  .profile-info .handle { color:var(--accent); font-size:13px; margin-top:3px; font-weight:500; }
+  .profile-info .role-line { color:var(--muted); font-size:13px; margin-top:6px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  .profile-info .role-line span { color:var(--text); font-weight:500; }
+  .profile-info .bio { color:var(--muted); font-size:13px; margin-top:8px; max-width:400px; line-height:1.6; }
+  .profile-info .tags { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+  .tag { padding:4px 12px; border-radius:20px; font-size:11px; font-weight:600; background:rgba(200,240,76,0.1); color:var(--accent); border:1px solid rgba(200,240,76,0.2); text-transform:uppercase; letter-spacing:.5px; }
+  .tag.teal { background:rgba(76,240,184,0.1); color:var(--accent2); border-color:rgba(76,240,184,0.2); }
+  .tag.blue { background:rgba(96,165,250,0.1); color:#60a5fa; border-color:rgba(96,165,250,0.2); }
+  .edit-btn { margin-left:auto; padding:10px 22px; border-radius:10px; border:1px solid rgba(200,240,76,0.35); background:rgba(200,240,76,0.07); color:var(--accent); font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; cursor:pointer; transition:all .2s; white-space:nowrap; align-self:flex-start; }
+  .edit-btn:hover { background:rgba(200,240,76,0.15); border-color:var(--accent); }
+
+  /* ── GRID ── */
+  .main-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px; }
+  .main-grid.three { grid-template-columns:1fr 1fr 1fr; }
+
+  /* ── CARDS ── */
+  .info-card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:24px; }
+  .info-card h3 { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:var(--muted); margin-bottom:18px; display:flex; align-items:center; gap:8px; }
+  .info-row { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border); }
+  .info-row:last-child { border-bottom:none; }
+  .info-row .lbl { color:var(--muted); font-size:13px; }
+  .info-row .val { color:var(--text); font-size:13px; font-weight:500; text-align:right; max-width:200px; word-break:break-word; }
+  .info-row .val.accent { color:var(--accent); }
+  .info-row .val.teal  { color:var(--accent2); }
+  .info-row .val.link  { color:#60a5fa; text-decoration:none; }
+  .info-row .val.link:hover { text-decoration:underline; }
+
+  /* ── STAT CARDS ── */
+  .stat-card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:24px; text-align:center; transition:transform .2s; }
+  .stat-card:hover { transform:translateY(-3px); }
+  .stat-val { font-family:'Syne',sans-serif; font-size:28px; font-weight:800; color:var(--accent); }
+  .stat-label { color:var(--muted); font-size:12px; margin-top:4px; text-transform:uppercase; letter-spacing:.5px; }
+
+  /* ── ACTIVITY ── */
+  .activity-bar { display:flex; align-items:flex-end; gap:6px; height:60px; margin-top:12px; }
+  .bar { flex:1; border-radius:4px 4px 0 0; background:rgba(200,240,76,0.15); transition:all .3s; }
+  .bar:hover { background:rgba(200,240,76,0.4); }
+  .bar.high { background:rgba(200,240,76,0.5); }
+  .bar.med  { background:rgba(200,240,76,0.3); }
+
+  /* ── NO DATA ── */
+  .no-data-banner { background:rgba(200,240,76,0.06); border:1px dashed rgba(200,240,76,0.2); border-radius:12px; padding:16px 20px; display:flex; align-items:center; gap:12px; margin-bottom:24px; }
+  .no-data-banner p { font-size:13px; color:var(--muted); }
+  .no-data-banner a { color:var(--accent); text-decoration:none; font-weight:600; }
+
+  /* ── COMPLETION BAR ── */
+  .completion-wrap { margin-top:16px; }
+  .completion-label { display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin-bottom:6px; }
+  .completion-label span { color:var(--accent); font-weight:600; }
+  .comp-bar { height:6px; background:rgba(255,255,255,0.06); border-radius:6px; overflow:hidden; }
+  .comp-fill { height:100%; border-radius:6px; background:linear-gradient(90deg, var(--accent), var(--accent2)); transition:width .8s ease; }
+
+  /* ═══════════════════════════════════════
+     EDIT MODAL
+  ═══════════════════════════════════════ */
+  .modal-overlay {
+    position:fixed; inset:0; background:rgba(4,6,12,0.82);
+    backdrop-filter:blur(6px); z-index:100;
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none; transition:opacity .25s;
+  }
+  .modal-overlay.open { opacity:1; pointer-events:all; }
+
+  .modal {
+    background:var(--surface); border:1px solid rgba(200,240,76,0.12);
+    border-radius:22px; width:100%; max-width:580px;
+    max-height:88vh; overflow:hidden; display:flex; flex-direction:column;
+    box-shadow:0 32px 80px rgba(0,0,0,0.6);
+    transform:translateY(28px) scale(.97); transition:transform .3s cubic-bezier(.34,1.2,.64,1);
+  }
+  .modal-overlay.open .modal { transform:translateY(0) scale(1); }
+
+  .modal-header {
+    padding:24px 28px 20px; border-bottom:1px solid var(--border);
+    display:flex; align-items:center; justify-content:space-between; flex-shrink:0;
+  }
+  .modal-header h2 { font-family:'Syne',sans-serif; font-size:18px; font-weight:800; }
+  .modal-header p  { font-size:12px; color:var(--muted); margin-top:3px; }
+  .modal-close { width:34px; height:34px; border-radius:8px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .2s; }
+  .modal-close:hover { background:rgba(255,80,80,0.1); color:#ff6b6b; border-color:rgba(255,80,80,0.2); }
+
+  .modal-body { padding:24px 28px; overflow-y:auto; flex:1; display:flex; flex-direction:column; gap:14px; }
+  .modal-body::-webkit-scrollbar { width:4px; }
+  .modal-body::-webkit-scrollbar-track { background:transparent; }
+  .modal-body::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1); border-radius:4px; }
+
+  /* Section label inside modal */
+  .modal-section-label {
+    font-family:'Syne',sans-serif; font-size:11px; font-weight:700;
+    text-transform:uppercase; letter-spacing:.8px; color:var(--muted);
+    margin-top:6px; padding-bottom:8px; border-bottom:1px solid var(--border);
+  }
+
+  .modal-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+
+  .fg { display:flex; flex-direction:column; gap:6px; }
+  .fg label { font-size:11.5px; font-weight:600; color:var(--muted); letter-spacing:.3px; text-transform:uppercase; }
+  .fg input, .fg select {
+    width:100%; padding:11px 14px;
+    background:rgba(255,255,255,0.04); border:1.5px solid var(--border);
+    border-radius:10px; color:var(--text); font-family:'DM Sans',sans-serif; font-size:14px;
+    outline:none; transition:border-color .2s, background .2s;
+  }
+  .fg input::placeholder { color:rgba(107,114,128,0.6); }
+  .fg input:focus, .fg select:focus { border-color:rgba(200,240,76,0.4); background:rgba(200,240,76,0.03); }
+  .fg select option { background:var(--card); color:var(--text); }
+
+  .modal-footer {
+    padding:18px 28px; border-top:1px solid var(--border);
+    display:flex; gap:10px; flex-shrink:0;
+  }
+  .btn-cancel-modal {
+    flex:0 0 auto; padding:11px 22px; border-radius:10px;
+    background:rgba(255,255,255,0.04); border:1px solid var(--border);
+    color:var(--muted); font-family:'DM Sans',sans-serif; font-size:14px; font-weight:500; cursor:pointer; transition:all .2s;
+  }
+  .btn-cancel-modal:hover { background:rgba(255,255,255,0.08); color:var(--text); }
+  .btn-save {
+    flex:1; padding:11px; border-radius:10px;
+    background:var(--accent); border:none;
+    color:#0a0c10; font-family:'Syne',sans-serif; font-size:14px; font-weight:700; cursor:pointer; transition:all .2s;
+  }
+  .btn-save:hover { opacity:.88; transform:translateY(-1px); box-shadow:0 8px 20px rgba(200,240,76,0.25); }
+
+  /* Save toast */
+  .toast {
+    position:fixed; bottom:32px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--accent); color:#0a0c10; font-family:'Syne',sans-serif;
+    font-size:13px; font-weight:700; padding:10px 24px; border-radius:40px;
+    opacity:0; transition:all .3s; z-index:999; pointer-events:none;
+    box-shadow:0 8px 24px rgba(200,240,76,0.3);
+  }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:none} }
+  .profile-hero { animation:fadeUp .45s ease both; }
+  .main-grid    { animation:fadeUp .45s .1s ease both; }
+  .info-card    { animation:fadeUp .45s .15s ease both; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">Jodze<span>nix</span></div>
+  <nav class="nav">
+    <a href="#" class="active"><span class="icon">👤</span> Profile</a>
+    
+  </nav>
+  <div class="sidebar-footer">
+    <a href="signout"><span class="icon">🚪</span> Sign Out</a>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="page-header">
+    <h1>Profile</h1>
+    <p>Your personal identity and career overview</p>
+  </div>
+
+  <div class="no-data-banner" id="noBanner" style="display:none;">
+    <span style="font-size:20px;">⚠️</span>
+    <p>No account data found. <a href="register.html">Register here</a> or <a href="login.html">Sign in</a> to see your profile.</p>
+  </div>
+
+  <!-- HERO -->
+  <div class="profile-hero">
+    <div class="avatar-wrap">
+      <div class="avatar" id="avatarLetter">?</div>
+      <div class="avatar-badge"></div>
+    </div>
+    <div class="profile-info">
+      <h2 id="heroName">—</h2>
+      <div class="handle" id="heroHandle">@—</div>
+      <div class="role-line">💼 <span id="heroRole">—</span> &nbsp;·&nbsp; 📍 <span id="heroLocation">—</span></div>
+      <div class="bio" id="heroBio">—</div>
+      <div class="tags" id="heroTags"></div>
+    </div>
+    <button class="edit-btn" onclick="openModal()">✏️ Edit Profile</button>
+  </div>
+
+  <!-- STATS -->
+  <div class="main-grid three" style="margin-bottom:20px;">
+    <div class="stat-card">
+      <div class="stat-val" id="statExp">—</div>
+      <div class="stat-label">Experience</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="statIndustry">—</div>
+      <div class="stat-label">Industry</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="statWork">—</div>
+      <div class="stat-label">Work Type</div>
+    </div>
+  </div>
+
+  <!-- INFO GRID -->
+  <div class="main-grid" style="margin-bottom:20px;">
+    <div class="info-card">
+      <h3>🪪 Account Details</h3>
+      <div class="info-row"><span class="lbl">Full Name</span><span class="val" id="infoName">—</span></div>
+      <div class="info-row"><span class="lbl">Email</span><span class="val" id="infoEmail">—</span></div>
+      <div class="info-row"><span class="lbl">Member Since</span><span class="val accent" id="infoSince">—</span></div>
+      <div class="info-row"><span class="lbl">Status</span><span class="val teal">Active ✓</span></div>
+    </div>
+    <div class="info-card">
+      <h3>💼 Career Details</h3>
+      <div class="info-row"><span class="lbl">Job Title</span><span class="val" id="infoTitle">—</span></div>
+      <div class="info-row"><span class="lbl">Experience</span><span class="val" id="infoExp">—</span></div>
+      <div class="info-row"><span class="lbl">Industry</span><span class="val" id="infoIndustry">—</span></div>
+      <div class="info-row"><span class="lbl">Location</span><span class="val" id="infoLoc">—</span></div>
+    </div>
+  </div>
+
+  <div class="main-grid">
+    <div class="info-card">
+      <h3>🎯 Goals & Preferences</h3>
+      <div class="info-row"><span class="lbl">Search Status</span><span class="val accent" id="infoStatus">—</span></div>
+      <div class="info-row"><span class="lbl">Target Role</span><span class="val" id="infoTarget">—</span></div>
+      <div class="info-row"><span class="lbl">Work Preference</span><span class="val" id="infoWorkType">—</span></div>
+      <div class="info-row"><span class="lbl">LinkedIn</span><a class="val link" id="infoLinkedin" href="#" target="_blank">—</a></div>
+      <div class="completion-wrap">
+        <div class="completion-label">Profile Completion <span id="compPct">0%</span></div>
+        <div class="comp-bar"><div class="comp-fill" id="compFill" style="width:0%"></div></div>
+      </div>
+    </div>
+    
+  </div>
+</main>
+
+<!-- ═══════════════════════════════════════
+     EDIT PROFILE MODAL
+═══════════════════════════════════════ -->
+<div class="modal-overlay" id="editOverlay" onclick="overlayClick(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <h2>✏️ Edit Profile</h2>
+        <p>Changes save to your account instantly</p>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Personal -->
+      <div class="modal-section-label">👤 Personal Information</div>
+      <div class="modal-row">
+        <div class="fg"><label>First Name</label><input type="text" id="eFname" placeholder="First name"/></div>
+        <div class="fg"><label>Last Name</label><input type="text" id="eLname" placeholder="Last name"/></div>
+      </div>
+      <div class="fg"><label>Email Address</label><input type="email" id="eEmail" placeholder="you@example.com"/></div>
+
+      <!-- Career -->
+      <div class="modal-section-label">💼 Career Details</div>
+      <div class="fg"><label>Job Title / Role</label><input type="text" id="eJobtitle" placeholder="e.g. Software Engineer"/></div>
+      <div class="modal-row">
+        <div class="fg">
+          <label>Experience Level</label>
+          <select id="eExp">
+            <option value="">Select level</option>
+            <option>Fresher / Entry Level (0–1 yr)</option>
+            <option>Junior (1–3 yrs)</option>
+            <option>Mid-Level (3–6 yrs)</option>
+            <option>Senior (6–10 yrs)</option>
+            <option>Lead / Manager (10+ yrs)</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Industry</label>
+          <select id="eIndustry">
+            <option value="">Select industry</option>
+            <option>Technology / Software</option>
+            <option>Finance / Banking</option>
+            <option>Healthcare</option>
+            <option>Marketing / Advertising</option>
+            <option>Design / Creative</option>
+            <option>Data / Analytics</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg"><label>Current Location</label><input type="text" id="eLocation" placeholder="e.g. Chennai, India"/></div>
+      <div class="fg"><label>LinkedIn URL</label><input type="text" id="eLinkedin" placeholder="linkedin.com/in/yourname"/></div>
+
+      <!-- Goals -->
+      <div class="modal-section-label">🎯 Goals & Preferences</div>
+      <div class="fg">
+        <label>Job Search Status</label>
+        <select id="eStatus">
+          <option value="">Select status</option>
+          <option>Actively looking</option>
+          <option>Open to opportunities</option>
+          <option>Just exploring</option>
+          <option>Not looking right now</option>
+        </select>
+      </div>
+      <div class="fg"><label>Target Role</label><input type="text" id="eTarget" placeholder="e.g. Senior Product Manager"/></div>
+      <div class="fg">
+        <label>Preferred Work Type</label>
+        <select id="eWorktype">
+          <option value="">Select work type</option>
+          <option>Remote</option>
+          <option>Hybrid</option>
+          <option>On-site</option>
+          <option>Flexible</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel-modal" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveProfile()">💾 Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">✓ Profile updated!</div>
+
+<script>
+/* ══════════════════════════════════
+   LOAD & RENDER
+══════════════════════════════════ */
+let user = {};
+
+function loadUser() {
+  try {
+    const raw = localStorage.getItem('currentUser');
+    if (raw) user = JSON.parse(raw);
+  } catch(e) { user = {}; }
+}
+
+function set(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val || '—';
+}
+
+function renderProfile() {
+  if (!user || !Object.keys(user).length) {
+    document.getElementById('noBanner').style.display = 'flex';
+    return;
+  }
+
+  const fullName  = user.name || ((user.fname||'') + ' ' + (user.lname||'')).trim() || '—';
+  const firstName = fullName.split(' ')[0];
+  const initials  = fullName.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2) || '?';
+
+  document.getElementById('avatarLetter').textContent = initials;
+  set('heroName', fullName);
+  document.getElementById('heroHandle').textContent = '@' + firstName.toLowerCase().replace(/\s+/g,'');
+  set('heroRole',     user.jobtitle || user.job_title || '—');
+  set('heroLocation', user.location || '—');
+
+  // Bio
+  const bp = [];
+  if (user.jobtitle||user.job_title) bp.push(user.jobtitle||user.job_title);
+  if (user.industry)  bp.push('in ' + user.industry);
+  if (user.location)  bp.push('based in ' + user.location);
+  document.getElementById('heroBio').textContent = bp.length ? bp.join(' ')+'.' : 'Welcome to Jodzenix!';
+
+  // Tags
+  const te = document.getElementById('heroTags');
+  te.innerHTML = '';
+  const expS    = (user.exp||user.experience||'').split(' ')[0];
+  const workS   = (user.worktype||user.work_type||'').split(' ')[0];
+  const statS   = (user.status||user.job_status||'')
+    .replace('Actively looking','🟢 Active')
+    .replace('Open to opportunities','🔵 Open');
+  if (expS)  te.innerHTML += `<span class="tag">${expS}</span>`;
+  if (workS) te.innerHTML += `<span class="tag teal">${workS}</span>`;
+  if (statS) te.innerHTML += `<span class="tag blue">${statS}</span>`;
+
+  // Stat cards
+  const shortExp = (user.exp||user.experience||'—')
+    .replace('Fresher / Entry Level (0–1 yr)','Entry Level')
+    .replace('Junior (1–3 yrs)','Junior')
+    .replace('Mid-Level (3–6 yrs)','Mid-Level')
+    .replace('Senior (6–10 yrs)','Senior')
+    .replace('Lead / Manager (10+ yrs)','Lead');
+  set('statExp',      shortExp);
+  set('statIndustry', (user.industry||'—').split(' ')[0]);
+  set('statWork',     (user.worktype||user.work_type||'—').split(' ')[0]);
+
+  // Account card
+  set('infoName',  fullName);
+  set('infoEmail', user.email||'—');
+  const since = user.created_at
+    ? new Date(user.created_at).toLocaleDateString('en-IN',{month:'short',year:'numeric'})
+    : new Date().toLocaleDateString('en-IN',{month:'short',year:'numeric'});
+  set('infoSince', since);
+
+  // Career card
+  set('infoTitle',    user.jobtitle||user.job_title||'—');
+  set('infoExp',      user.exp||user.experience||'—');
+  set('infoIndustry', user.industry||'—');
+  set('infoLoc',      user.location||'—');
+
+  // Goals card
+  set('infoStatus',   user.status||user.job_status||'—');
+  set('infoTarget',   user.target||user.target_role||'—');
+  set('infoWorkType', user.worktype||user.work_type||'—');
+  set('infoSource',   user.source||'—');
+
+  // LinkedIn
+  const li   = user.linkedin||user.linkedin_url||'';
+  const liEl = document.getElementById('infoLinkedin');
+  if (li) {
+    liEl.textContent = li.replace(/https?:\/\//,'');
+    liEl.href = li.startsWith('http') ? li : 'https://'+li;
+  } else {
+    liEl.textContent = '—'; liEl.href = '#';
+  }
+
+  // Completion
+  const fields = [user.name||user.fname, user.email,
+    user.jobtitle||user.job_title, user.exp||user.experience,
+    user.industry, user.location,
+    user.status||user.job_status, user.target||user.target_role,
+    user.worktype||user.work_type, user.linkedin||user.linkedin_url];
+  const pct = Math.round(fields.filter(f=>f&&f.trim&&f.trim()).length / fields.length * 100);
+  document.getElementById('compPct').textContent = pct+'%';
+  setTimeout(()=>{ document.getElementById('compFill').style.width = pct+'%'; }, 300);
+}
+
+/* ══════════════════════════════════
+   MODAL OPEN / CLOSE
+══════════════════════════════════ */
+function openModal() {
+  // Pre-fill modal inputs from current user data
+  const nameParts = (user.name || ((user.fname||'')+' '+(user.lname||'')).trim()).split(' ');
+  document.getElementById('eFname').value    = nameParts[0] || '';
+  document.getElementById('eLname').value    = nameParts.slice(1).join(' ') || '';
+  document.getElementById('eEmail').value    = user.email || '';
+  document.getElementById('eJobtitle').value = user.jobtitle || user.job_title || '';
+  document.getElementById('eLocation').value = user.location || '';
+  document.getElementById('eLinkedin').value = user.linkedin || user.linkedin_url || '';
+  document.getElementById('eTarget').value   = user.target || user.target_role || '';
+
+  // Selects — match current value
+  setSelect('eExp',      user.exp || user.experience || '');
+  setSelect('eIndustry', user.industry || '');
+  setSelect('eStatus',   user.status || user.job_status || '');
+  setSelect('eWorktype', user.worktype || user.work_type || '');
+
+  document.getElementById('editOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function setSelect(id, val) {
+  const sel = document.getElementById(id);
+  for (let o of sel.options) {
+    if (o.value === val || o.text === val) { sel.value = o.value; return; }
+  }
+  sel.value = '';
+}
+
+function closeModal() {
+  document.getElementById('editOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function overlayClick(e) {
+  if (e.target === document.getElementById('editOverlay')) closeModal();
+}
+
+/* ══════════════════════════════════
+   SAVE
+══════════════════════════════════ */
+function saveProfile() {
+  const fname = document.getElementById('eFname').value.trim();
+  const lname = document.getElementById('eLname').value.trim();
+
+  // Update user object
+  user.name     = (fname + ' ' + lname).trim() || user.name;
+  user.fname    = fname;
+  user.lname    = lname;
+  user.email    = document.getElementById('eEmail').value.trim()    || user.email;
+  user.jobtitle = document.getElementById('eJobtitle').value.trim() || user.jobtitle;
+  user.location = document.getElementById('eLocation').value.trim() || user.location;
+  user.linkedin = document.getElementById('eLinkedin').value.trim() || user.linkedin;
+  user.target   = document.getElementById('eTarget').value.trim()   || user.target;
+  user.exp      = document.getElementById('eExp').value      || user.exp;
+  user.industry = document.getElementById('eIndustry').value || user.industry;
+  user.status   = document.getElementById('eStatus').value   || user.status;
+  user.worktype = document.getElementById('eWorktype').value || user.worktype;
+
+  // Persist
+  try { localStorage.setItem('currentUser', JSON.stringify(user)); } catch(e) {}
+
+  closeModal();
+  renderProfile();
+  showToast();
+}
+
+function showToast() {
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(()=> t.classList.remove('show'), 2800);
+}
+
+/* ══════════════════════════════════
+   INIT
+══════════════════════════════════ */
+loadUser();
+renderProfile();
+</script>
+</body>
+</html>

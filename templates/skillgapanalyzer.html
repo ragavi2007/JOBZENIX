@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skill Gap Analyzer</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f7f5;
+    --bg-tertiary: #f1f0ec;
+    --text-primary: #1a1a1a;
+    --text-secondary: #6b6b68;
+    --text-tertiary: #9b9b97;
+    --border-light: rgba(0,0,0,0.1);
+    --border-med: rgba(0,0,0,0.18);
+    --purple-bg: #EEEDFE;
+    --purple-mid: #534AB7;
+    --purple-dark: #3C3489;
+    --teal-bg: #E1F5EE;
+    --teal-mid: #1D9E75;
+    --teal-dark: #0F6E56;
+    --red-bg: #FCEBEB;
+    --red-mid: #E24B4A;
+    --red-dark: #A32D2D;
+    --green-bg: #EAF3DE;
+    --green-mid: #639922;
+    --green-dark: #3B6D11;
+    --amber-bg: #FAEEDA;
+    --amber-mid: #EF9F27;
+    --amber-dark: #854F0B;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #1c1c1a;
+      --bg-secondary: #242422;
+      --bg-tertiary: #2c2c2a;
+      --text-primary: #f0ede8;
+      --text-secondary: #a0a09a;
+      --text-tertiary: #6b6b68;
+      --border-light: rgba(255,255,255,0.1);
+      --border-med: rgba(255,255,255,0.18);
+      --purple-bg: #26215C;
+      --purple-mid: #7F77DD;
+      --purple-dark: #AFA9EC;
+      --teal-bg: #04342C;
+      --teal-mid: #1D9E75;
+      --teal-dark: #9FE1CB;
+      --red-bg: #4A1B0C;
+      --red-mid: #E24B4A;
+      --red-dark: #F0997B;
+      --green-bg: #173404;
+      --green-mid: #639922;
+      --green-dark: #C0DD97;
+      --amber-bg: #412402;
+      --amber-mid: #EF9F27;
+      --amber-dark: #FAC775;
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+
+  .container { max-width: 760px; margin: 0 auto; }
+
+  .header { text-align: center; margin-bottom: 2rem; }
+  .header h1 { font-size: 26px; font-weight: 500; color: var(--text-primary); }
+  .header h1 i { color: var(--purple-mid); }
+  .header p { font-size: 15px; color: var(--text-secondary); margin-top: 6px; }
+
+  .step-bar { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .step-pill {
+    font-size: 12px; padding: 5px 16px; border-radius: 999px;
+    border: 0.5px solid var(--border-light); color: var(--text-secondary);
+    background: var(--bg-primary); transition: all .3s; cursor: default;
+  }
+  .step-pill.active { background: var(--purple-mid); color: var(--purple-bg); border-color: var(--purple-mid); }
+  .step-pill.done { background: var(--teal-dark); color: var(--teal-bg); border-color: var(--teal-dark); }
+
+  .card {
+    background: var(--bg-primary);
+    border: 0.5px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .section-title {
+    font-size: 16px; font-weight: 500; color: var(--text-primary);
+    margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;
+  }
+  .section-title i { color: var(--purple-mid); }
+
+  label { font-size: 13px; color: var(--text-secondary); display: block; margin-bottom: 6px; }
+
+  input[type="text"], select {
+    width: 100%; padding: 9px 12px; font-size: 14px;
+    background: var(--bg-secondary); color: var(--text-primary);
+    border: 0.5px solid var(--border-med); border-radius: var(--radius-md);
+    outline: none; transition: border .2s;
+  }
+  input[type="text"]:focus, select:focus { border-color: var(--purple-mid); }
+
+  .tag-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .tag {
+    font-size: 12px; padding: 4px 12px; border-radius: 999px;
+    border: 0.5px solid var(--border-light); cursor: pointer;
+    background: var(--bg-secondary); color: var(--text-secondary);
+    transition: all .2s; user-select: none;
+  }
+  .tag:hover { border-color: var(--purple-mid); color: var(--purple-mid); }
+  .tag.selected { background: var(--purple-mid); color: var(--purple-bg); border-color: var(--purple-mid); }
+  .tag.has { background: var(--green-bg); color: var(--green-dark); border-color: var(--green-mid); }
+  .tag.missing { background: var(--red-bg); color: var(--red-dark); border-color: var(--red-mid); }
+  .tag.road { background: var(--teal-bg); color: var(--teal-dark); border-color: var(--teal-mid); }
+
+  .btn-row { display: flex; gap: 8px; margin-top: 1.25rem; }
+  button {
+    padding: 9px 18px; font-size: 14px; border-radius: var(--radius-md);
+    border: 0.5px solid var(--border-med); cursor: pointer;
+    background: var(--bg-secondary); color: var(--text-primary);
+    display: flex; align-items: center; gap: 6px; transition: all .2s;
+  }
+  button:hover { background: var(--bg-tertiary); border-color: var(--purple-mid); }
+  button:active { transform: scale(0.98); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+  button.primary {
+    flex: 1; justify-content: center;
+    background: var(--purple-mid); color: var(--purple-bg); border-color: var(--purple-mid);
+  }
+  button.primary:hover { background: var(--purple-dark); }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+
+  .metric {
+    background: var(--bg-secondary); border-radius: var(--radius-md);
+    padding: 1rem; text-align: center; border: 0.5px solid var(--border-light);
+  }
+  .metric-val { font-size: 28px; font-weight: 500; }
+  .metric-lbl { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+  .meter-bar { height: 12px; border-radius: 999px; background: var(--bg-secondary); overflow: hidden; margin: 8px 0; }
+  .meter-fill { height: 100%; border-radius: 999px; transition: width 1.2s cubic-bezier(.4,0,.2,1); }
+
+  .ai-bubble {
+    background: linear-gradient(135deg, var(--purple-bg) 0%, var(--teal-bg) 100%);
+    border: 0.5px solid #AFA9EC;
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+  }
+  .ai-icon {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--purple-mid); display: flex; align-items: center;
+    justify-content: center; color: var(--purple-bg); font-size: 16px; flex-shrink: 0;
+  }
+
+  .road-item {
+    display: flex; gap: 14px; padding: 12px 0;
+    border-bottom: 0.5px solid var(--border-light); align-items: flex-start;
+  }
+  .road-item:last-child { border-bottom: none; }
+  .road-num {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--purple-mid); color: var(--purple-bg);
+    font-size: 12px; font-weight: 500;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .week-badge {
+    font-size: 11px; padding: 2px 8px; border-radius: 999px;
+    background: var(--amber-bg); color: var(--amber-dark); border: 0.5px solid var(--amber-mid);
+  }
+
+  .animate-in { animation: fadeUp .5s ease forwards; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(14px) } to { opacity:1; transform:translateY(0) } }
+
+  .pulse { animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.5} }
+
+  .loading-dots::after { content:''; animation: dots 1.5s steps(4,end) infinite; }
+  @keyframes dots { 0%,100%{content:''}25%{content:'.'}50%{content:'..'}75%{content:'...'} }
+
+  @media (max-width: 500px) {
+    .grid4 { grid-template-columns: 1fr 1fr; }
+    .grid2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header animate-in">
+    <h1><i class="ti ti-topology-star-3"></i> Skill Gap Analyzer</h1>
+    <p>Enter your skills + target role → AI-powered missing skills & roadmap</p>
+  </div>
+
+  <div class="step-bar">
+    <div class="step-pill active" id="sp1">1. Your skills</div>
+    <div class="step-pill" id="sp2">2. Target role</div>
+    <div class="step-pill" id="sp3">3. Analysis</div>
+    <div class="step-pill" id="sp4">4. Roadmap</div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div id="view1" class="animate-in">
+    <div class="card">
+      <p class="section-title"><i class="ti ti-code"></i> What skills do you currently have?</p>
+      <label>Quick-select (click to add)</label>
+      <div class="tag-grid" id="skillPicker">
+        <span class="tag" onclick="toggleSkill(this,'HTML')">HTML</span>
+        <span class="tag" onclick="toggleSkill(this,'CSS')">CSS</span>
+        <span class="tag" onclick="toggleSkill(this,'JavaScript')">JavaScript</span>
+        <span class="tag" onclick="toggleSkill(this,'Python')">Python</span>
+        <span class="tag" onclick="toggleSkill(this,'React')">React</span>
+        <span class="tag" onclick="toggleSkill(this,'Node.js')">Node.js</span>
+        <span class="tag" onclick="toggleSkill(this,'SQL')">SQL</span>
+        <span class="tag" onclick="toggleSkill(this,'Git')">Git</span>
+        <span class="tag" onclick="toggleSkill(this,'Docker')">Docker</span>
+        <span class="tag" onclick="toggleSkill(this,'AWS')">AWS</span>
+        <span class="tag" onclick="toggleSkill(this,'TypeScript')">TypeScript</span>
+        <span class="tag" onclick="toggleSkill(this,'REST APIs')">REST APIs</span>
+        <span class="tag" onclick="toggleSkill(this,'MongoDB')">MongoDB</span>
+        <span class="tag" onclick="toggleSkill(this,'Linux')">Linux</span>
+        <span class="tag" onclick="toggleSkill(this,'Figma')">Figma</span>
+        <span class="tag" onclick="toggleSkill(this,'Machine Learning')">Machine Learning</span>
+        <span class="tag" onclick="toggleSkill(this,'Java')">Java</span>
+        <span class="tag" onclick="toggleSkill(this,'CI/CD')">CI/CD</span>
+        <span class="tag" onclick="toggleSkill(this,'TensorFlow')">TensorFlow</span>
+        <span class="tag" onclick="toggleSkill(this,'Statistics')">Statistics</span>
+        <span class="tag" onclick="toggleSkill(this,'Swift')">Swift</span>
+        <span class="tag" onclick="toggleSkill(this,'Kotlin')">Kotlin</span>
+      </div>
+      <div style="margin-top:1rem">
+        <label>Or type custom skills (comma-separated)</label>
+        <input type="text" id="customSkills" placeholder="e.g. Redux, PostgreSQL, Kubernetes...">
+      </div>
+      <div id="selectedSkillsArea" style="margin-top:1rem;display:none">
+        <label>Selected skills</label>
+        <div class="tag-grid" id="selectedTags"></div>
+      </div>
+      <div class="btn-row">
+        <button class="primary" onclick="goStep(2)">Next: Choose target role <i class="ti ti-arrow-right"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div id="view2" style="display:none">
+    <div class="card">
+      <p class="section-title"><i class="ti ti-briefcase"></i> What role are you targeting?</p>
+      <label>Select a job role</label>
+      <select id="roleSelect" onchange="roleChanged()">
+        <option value="">-- Choose role --</option>
+        <option value="frontend">Frontend Developer</option>
+        <option value="backend">Backend Developer</option>
+        <option value="fullstack">Full Stack Developer</option>
+        <option value="devops">DevOps Engineer</option>
+        <option value="datascience">Data Scientist</option>
+        <option value="ml">ML Engineer</option>
+        <option value="mobile">Mobile Developer</option>
+        <option value="uiux">UI/UX Designer</option>
+      </select>
+      <div id="rolePreview" style="margin-top:1rem;display:none">
+        <label>Required skills for this role</label>
+        <div class="tag-grid" id="roleSkillTags"></div>
+      </div>
+      <div class="btn-row">
+        <button onclick="goStep(1)"><i class="ti ti-arrow-left"></i> Back</button>
+        <button class="primary" onclick="runAnalysis()" id="analyzeBtn" disabled>Analyze my gap <i class="ti ti-brain"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div id="view3" style="display:none">
+    <div class="grid4" style="margin-bottom:12px">
+      <div class="metric animate-in">
+        <div class="metric-val" id="mScore" style="color:var(--teal-mid)">0%</div>
+        <div class="metric-lbl">Skill match</div>
+      </div>
+      <div class="metric animate-in" style="animation-delay:.1s">
+        <div class="metric-val" id="mHave" style="color:var(--purple-mid)">0</div>
+        <div class="metric-lbl">You have</div>
+      </div>
+      <div class="metric animate-in" style="animation-delay:.2s">
+        <div class="metric-val" id="mMiss" style="color:var(--red-dark)">0</div>
+        <div class="metric-lbl">Missing</div>
+      </div>
+      <div class="metric animate-in" style="animation-delay:.3s">
+        <div class="metric-val" id="mWeeks" style="color:var(--amber-dark)">0w</div>
+        <div class="metric-lbl">Est. time</div>
+      </div>
+    </div>
+
+    <div class="card animate-in">
+      <p class="section-title"><i class="ti ti-chart-bar"></i> Match score</p>
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);margin-bottom:4px">
+          <span>0%</span><span id="scoreLabel">—</span><span>100%</span>
+        </div>
+        <div class="meter-bar"><div class="meter-fill" id="scoreBar" style="width:0%;background:var(--teal-mid)"></div></div>
+      </div>
+      <div class="grid2" style="margin-top:1.25rem">
+        <div>
+          <label style="color:var(--green-dark)"><i class="ti ti-circle-check"></i> Skills you have</label>
+          <div class="tag-grid" id="haveTagList"></div>
+        </div>
+        <div>
+          <label style="color:var(--red-dark)"><i class="ti ti-alert-circle"></i> Missing skills</label>
+          <div class="tag-grid" id="missTagList"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ai-bubble animate-in" style="margin-bottom:1rem;animation-delay:.2s">
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div class="ai-icon"><i class="ti ti-robot"></i></div>
+        <div style="flex:1">
+          <p style="font-size:13px;font-weight:500;color:var(--purple-dark);margin-bottom:6px">
+            AI Feedback <span class="pulse" style="font-size:10px;color:var(--purple-mid)">● analyzing</span>
+          </p>
+          <p id="aiFeedback" style="font-size:14px;color:var(--text-primary);line-height:1.65" class="loading-dots">Analyzing your profile</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button onclick="goStep(2)"><i class="ti ti-arrow-left"></i> Back</button>
+      <button class="primary" onclick="goStep(4)">View roadmap <i class="ti ti-map-2"></i></button>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div id="view4" style="display:none">
+    <div class="card animate-in" style="margin-bottom:1rem">
+      <p class="section-title"><i class="ti ti-map-2"></i> Learning Roadmap</p>
+      <div id="roadmapList"></div>
+    </div>
+
+    <div class="card animate-in" style="margin-bottom:1rem;animation-delay:.15s">
+      <p class="section-title"><i class="ti ti-chart-radar"></i> Coverage across all roles</p>
+      <div style="position:relative;width:100%;height:220px">
+        <canvas id="coverageChart" role="img" aria-label="Bar chart showing your skill coverage percentage across different developer roles"></canvas>
+      </div>
+    </div>
+
+    <div class="card animate-in" style="margin-bottom:1rem;animation-delay:.25s">
+      <p class="section-title"><i class="ti ti-database"></i> Profile summary (stored)</p>
+      <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:1rem;font-size:13px;font-family:monospace;color:var(--text-secondary);line-height:1.7" id="profileJSON"></div>
+    </div>
+
+    <div class="btn-row">
+      <button onclick="goStep(3)"><i class="ti ti-arrow-left"></i> Back</button>
+      <button class="primary" onclick="exportProfile()"><i class="ti ti-download"></i> Export profile</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const ROLE_SKILLS = {
+  frontend:    ['HTML','CSS','JavaScript','React','TypeScript','Git','REST APIs','Figma','Webpack','Testing'],
+  backend:     ['Python','Node.js','SQL','REST APIs','Git','Docker','MongoDB','Linux','CI/CD','Security'],
+  fullstack:   ['HTML','CSS','JavaScript','React','Node.js','SQL','Git','Docker','REST APIs','TypeScript'],
+  devops:      ['Docker','AWS','Linux','CI/CD','Git','Kubernetes','Terraform','Monitoring','Bash','Security'],
+  datascience: ['Python','SQL','Machine Learning','Statistics','Pandas','Visualization','Git','Jupyter','R','TensorFlow'],
+  ml:          ['Python','Machine Learning','TensorFlow','PyTorch','SQL','Docker','Git','Statistics','APIs','Cloud'],
+  mobile:      ['JavaScript','React','Swift','Kotlin','Git','REST APIs','TypeScript','Figma','Testing','Firebase'],
+  uiux:        ['Figma','CSS','HTML','Prototyping','User Research','Accessibility','Design Systems','JavaScript','Testing','Analytics']
+};
+
+const ROLE_LABELS = {
+  frontend:'Frontend',backend:'Backend',fullstack:'Full Stack',devops:'DevOps',
+  datascience:'Data Sci',ml:'ML Eng',mobile:'Mobile',uiux:'UI/UX'
+};
+
+const AI_FEEDBACK = {
+  frontend: (miss,score) => miss.length===0
+    ? 'You are fully job-ready for Frontend roles! Your skill set covers HTML, CSS, React and more. Start applying and building your portfolio today.'
+    : score>60
+    ? `Strong base! You have most frontend essentials. Focus on ${miss.slice(0,2).join(' and ')} to reach job-readiness. Estimated ${miss.length*3} weeks of focused practice will get you there.`
+    : `You are missing core frontend skills like ${miss.slice(0,3).join(', ')}. Start with ${miss[0]}, build small projects to practice each skill, then move to the next.`,
+  backend: (miss,score) => miss.length===0
+    ? 'Excellent! You are backend-ready. Consider specializing in cloud infrastructure or microservices architecture to stand out from candidates.'
+    : score>60
+    ? `Good backend foundation! Focus on ${miss.slice(0,2).join(' and ')} to complete your profile. Build a REST API project and deploy it to showcase skills.`
+    : `Backend roles need strong ${miss.slice(0,3).join(', ')} knowledge. Start with ${miss[0]} — build a fully functional REST API from scratch as your first project.`,
+  fullstack: (miss,score) => miss.length===0
+    ? 'You are a complete Full Stack developer! Focus on system design and architecture patterns to target senior-level positions.'
+    : score>60
+    ? `Almost there! Add ${miss.slice(0,2).join(' and ')} to unlock full stack positions. Build one complete end-to-end project showcasing both frontend and backend.`
+    : `Full stack requires breadth. Prioritize ${miss[0]} on the frontend and ${miss[1]||miss[0]} on the backend simultaneously. One real project from scratch is worth more than ten tutorials.`,
+  devops: (miss,score) => `DevOps is infrastructure-heavy. ${miss.length===0?'You are ready — explore SRE or platform engineering next.':`Focus on ${miss.slice(0,2).join(' and ')}. Hands-on lab environments like Killercoda will accelerate your learning significantly.`}`,
+  datascience: (miss,score) => `Data Science needs a strong math + code combination. ${miss.length===0?'Job-ready! Build a portfolio with Kaggle competition solutions.':`${miss.slice(0,2).join(' and ')} are your key gaps. Start with ${miss[0]} — implement ML models from scratch to build real intuition.`}`,
+  ml: (miss,score) => `ML Engineering blends software engineering with research skills. ${miss.length===0?'Ready to apply! Contribute to open-source ML projects and publish your work.':`Close gaps in ${miss.slice(0,2).join(' and ')}. Read papers and implement them — that is the fastest path to ML expertise.`}`,
+  mobile: (miss,score) => `Mobile development is booming across all platforms. ${miss.length===0?'Ship your first app to the App Store or Play Store — a live app matters more than any certificate!':`Learn ${miss[0]} first, then build a real app with it. Portfolio matters far more than course certificates in mobile.`}`,
+  uiux: (miss,score) => `UX is all about empathy plus execution. ${miss.length===0?'Strong portfolio beats everything — document your design process in case studies.':`Work on ${miss.slice(0,2).join(' and ')}. Redesign 3 existing apps and present your reasoning — that is your interview portfolio.`}`
+};
+
+const ROADMAP_DB = {
+  'React':          {week:'3–4 weeks', resources:'Official React docs, Scrimba React course, build a task manager app'},
+  'TypeScript':     {week:'2–3 weeks', resources:'TypeScript handbook, TS+React project, Fireship TypeScript course'},
+  'Docker':         {week:'2 weeks',   resources:'Docker docs play-with-docker.com, TechWorld DevOps bootcamp'},
+  'AWS':            {week:'4–6 weeks', resources:'AWS free tier account, A Cloud Guru, build a serverless REST API'},
+  'Machine Learning':{week:'8–12 weeks',resources:'Andrew Ng ML Specialization (Coursera), Kaggle competitions, scikit-learn'},
+  'Python':         {week:'3–4 weeks', resources:'Python.org tutorial, Automate the Boring Stuff, 30 mini projects challenge'},
+  'SQL':            {week:'2–3 weeks', resources:'SQLZoo, Mode Analytics SQL tutorial, design a real database schema'},
+  'Node.js':        {week:'2–3 weeks', resources:'Node.js official docs, The Odin Project backend, build and deploy a REST API'},
+  'Git':            {week:'1 week',    resources:'Pro Git book (free), GitHub Learning Lab, contribute to an open-source repo'},
+  'REST APIs':      {week:'1–2 weeks', resources:'RESTful API design guide, Postman docs, build and document a public API'},
+  'CI/CD':          {week:'2–3 weeks', resources:'GitHub Actions docs, Jenkins beginner guide, automate your deployment pipeline'},
+  'Kubernetes':     {week:'3–4 weeks', resources:'Kubernetes.io docs, Killercoda labs, deploy a multi-service application'},
+  'Figma':          {week:'1–2 weeks', resources:'Figma tutorials on YouTube, redesign an app UI, join Figma community'},
+  'Testing':        {week:'2 weeks',   resources:'Jest docs, React Testing Library, TDD kata exercises on Exercism'},
+  'MongoDB':        {week:'1–2 weeks', resources:'MongoDB University free courses, build a CRUD app with Mongoose'},
+  'Linux':          {week:'2 weeks',   resources:'Linux Journey, OverTheWire wargames, DigitalOcean Linux tutorials'},
+  'TensorFlow':     {week:'3–4 weeks', resources:'TensorFlow.org tutorials, Deep Learning Specialization, Kaggle deep learning'},
+  'Statistics':     {week:'3–4 weeks', resources:'StatQuest YouTube, Khan Academy statistics, implement key tests in Python'},
+  'Swift':          {week:'4–6 weeks', resources:'Apple Swift Playgrounds, Hacking with Swift, build an iOS app from scratch'},
+  'Kotlin':         {week:'3–4 weeks', resources:'JetBrains Kotlin Koans, Android developer docs, publish a simple Android app'},
+  'TypeScript':     {week:'2–3 weeks', resources:'TypeScript handbook, Execute Program, refactor a JS project to TS'},
+  'Pandas':         {week:'2 weeks',   resources:'Pandas docs, Kaggle Python course, do EDA on a real dataset'},
+  'Visualization':  {week:'1–2 weeks', resources:'Matplotlib/Seaborn docs, Observable D3 tutorials, build 5 chart types'},
+  'PyTorch':        {week:'3–4 weeks', resources:'PyTorch tutorials, fast.ai course, implement a neural net from scratch'},
+  'Terraform':      {week:'2–3 weeks', resources:'HashiCorp learn platform, build IaC for a simple cloud setup'},
+  'Firebase':       {week:'1–2 weeks', resources:'Firebase docs, build an auth + database app, deploy to Hosting'},
+  'Jupyter':        {week:'3 days',    resources:'Jupyter docs, run 3 analysis notebooks, publish on Kaggle'},
+  'Security':       {week:'3–4 weeks', resources:'OWASP top 10, TryHackMe beginner path, add auth to your API project'},
+  'Bash':           {week:'1 week',    resources:'Bash scripting guide, automate 5 real tasks, ShellCheck linter'},
+  'Monitoring':     {week:'1–2 weeks', resources:'Prometheus + Grafana docs, set up monitoring for a local app'},
+  'Webpack':        {week:'1 week',    resources:'Webpack docs, configure a project from scratch, compare with Vite'},
+  'Prototyping':    {week:'1 week',    resources:'Figma prototyping guide, build 2 interactive prototypes, user test them'},
+  'User Research':  {week:'2 weeks',   resources:'Nielsen Norman Group articles, run 5 user interviews, synthesize findings'},
+  'Accessibility':  {week:'1–2 weeks', resources:'WebAIM.org, WCAG 2.1 guide, audit an existing site with axe DevTools'},
+  'Design Systems': {week:'2–3 weeks', resources:'Google Material, Shopify Polaris docs, build a small component library'},
+  'Analytics':      {week:'1 week',    resources:'Google Analytics Academy, set up GA4, build a simple metrics dashboard'},
+  'Kubernetes':     {week:'3–4 weeks', resources:'Kubernetes.io, Killercoda, deploy multi-service app with Helm charts'},
+};
+
+let selectedSkills = new Set();
+let currentRole = '';
+let haveSkills = [];
+let missSkills = [];
+let analysisScore = 0;
+let coverageChartInstance = null;
+
+function toggleSkill(el, skill) {
+  if (el.classList.contains('selected')) {
+    el.classList.remove('selected');
+    selectedSkills.delete(skill);
+  } else {
+    el.classList.add('selected');
+    selectedSkills.add(skill);
+  }
+  updateSelectedUI();
+}
+
+function updateSelectedUI() {
+  const custom = document.getElementById('customSkills').value.split(',').map(s=>s.trim()).filter(Boolean);
+  const merged = [...new Set([...selectedSkills, ...custom])];
+  const area = document.getElementById('selectedSkillsArea');
+  const tags = document.getElementById('selectedTags');
+  if (merged.length === 0) { area.style.display = 'none'; return; }
+  area.style.display = 'block';
+  tags.innerHTML = merged.map(s=>`<span class="tag selected">${s}</span>`).join('');
+}
+
+document.getElementById('customSkills').addEventListener('input', updateSelectedUI);
+
+function getAllSkills() {
+  const custom = document.getElementById('customSkills').value.split(',').map(s=>s.trim()).filter(Boolean);
+  return [...new Set([...selectedSkills, ...custom])];
+}
+
+function roleChanged() {
+  const r = document.getElementById('roleSelect').value;
+  currentRole = r;
+  const preview = document.getElementById('rolePreview');
+  const btn = document.getElementById('analyzeBtn');
+  if (!r) { preview.style.display='none'; btn.disabled=true; return; }
+  const skills = ROLE_SKILLS[r] || [];
+  document.getElementById('roleSkillTags').innerHTML = skills.map(s=>`<span class="tag">${s}</span>`).join('');
+  preview.style.display = 'block';
+  btn.disabled = false;
+}
+
+function goStep(n) {
+  [1,2,3,4].forEach(i => {
+    document.getElementById('view'+i).style.display = 'none';
+    const sp = document.getElementById('sp'+i);
+    sp.classList.remove('active','done');
+    if (i < n) sp.classList.add('done');
+    else if (i === n) sp.classList.add('active');
+  });
+  const view = document.getElementById('view'+n);
+  view.style.display = 'block';
+  view.classList.remove('animate-in');
+  void view.offsetWidth;
+  view.classList.add('animate-in');
+}
+
+function runAnalysis() {
+  const mySkills = getAllSkills().map(s=>s.toLowerCase());
+  const required = ROLE_SKILLS[currentRole] || [];
+  haveSkills = required.filter(s => mySkills.includes(s.toLowerCase()));
+  missSkills = required.filter(s => !mySkills.includes(s.toLowerCase()));
+  analysisScore = required.length ? Math.round((haveSkills.length/required.length)*100) : 0;
+  const weeks = missSkills.reduce((a,s) => {
+    const r = ROADMAP_DB[s];
+    if (!r) return a+2;
+    const m = r.week.match(/\d+/g);
+    return a + (m ? parseInt(m[0]) : 2);
+  }, 0);
+
+  goStep(3);
+  setTimeout(() => {
+    animateNumber('mScore', 0, analysisScore, '%');
+    animateNumber('mHave', 0, haveSkills.length, '');
+    animateNumber('mMiss', 0, missSkills.length, '');
+    document.getElementById('mWeeks').textContent = weeks + 'w';
+    document.getElementById('scoreLabel').textContent = analysisScore + '%';
+
+    const bar = document.getElementById('scoreBar');
+    bar.style.width = analysisScore + '%';
+    const color = analysisScore >= 70 ? 'var(--teal-mid)' : analysisScore >= 40 ? 'var(--amber-mid)' : 'var(--red-mid)';
+    bar.style.background = color;
+
+    document.getElementById('haveTagList').innerHTML =
+      haveSkills.length ? haveSkills.map(s=>`<span class="tag has">${s}</span>`).join('') : '<span style="font-size:12px;color:var(--text-tertiary)">None matched</span>';
+    document.getElementById('missTagList').innerHTML =
+      missSkills.length ? missSkills.map(s=>`<span class="tag missing">${s}</span>`).join('') : '<span class="tag has">All covered!</span>';
+
+    const feedbackFn = AI_FEEDBACK[currentRole];
+    if (feedbackFn) typeText('aiFeedback', feedbackFn(missSkills, analysisScore));
+
+    buildRoadmap();
+    buildCoverageChart();
+    buildProfileJSON(weeks);
+  }, 150);
+}
+
+function animateNumber(id, from, to, suffix) {
+  const el = document.getElementById(id);
+  const steps = 40; const inc = (to-from)/steps; let cur = from;
+  const t = setInterval(() => {
+    cur += inc;
+    if (cur >= to) { cur = to; clearInterval(t); }
+    el.textContent = Math.round(cur) + suffix;
+  }, 20);
+}
+
+function typeText(id, text) {
+  const el = document.getElementById(id);
+  el.classList.remove('loading-dots');
+  el.textContent = '';
+  let i = 0;
+  const t = setInterval(() => {
+    el.textContent += text[i]; i++;
+    if (i >= text.length) clearInterval(t);
+  }, 16);
+}
+
+function buildRoadmap() {
+  const list = document.getElementById('roadmapList');
+  if (missSkills.length === 0) {
+    list.innerHTML = '<p style="color:var(--green-dark);font-size:14px;padding:0.5rem 0"><i class="ti ti-party-popper"></i> You have all required skills! Focus on building projects and applying to roles now.</p>';
+    return;
+  }
+  list.innerHTML = missSkills.map((s,i) => {
+    const r = ROADMAP_DB[s] || {week:'2–3 weeks', resources:'Search for online tutorials and build a mini project'};
+    return `<div class="road-item" style="animation-delay:${i*.07}s">
+      <div class="road-num">${i+1}</div>
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;flex-wrap:wrap;gap:4px">
+          <span style="font-size:14px;font-weight:500;color:var(--text-primary)">${s}</span>
+          <span class="week-badge">${r.week}</span>
+        </div>
+        <p style="font-size:12px;color:var(--text-secondary);line-height:1.55">${r.resources}</p>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function buildCoverageChart() {
+  const myS = getAllSkills().map(s=>s.toLowerCase());
+  const roles = Object.keys(ROLE_SKILLS);
+  const scores = roles.map(r => {
+    const req = ROLE_SKILLS[r];
+    const have = req.filter(s => myS.includes(s.toLowerCase()));
+    return Math.round((have.length/req.length)*100);
+  });
+  const labels = roles.map(r => ROLE_LABELS[r]);
+  const colors = scores.map(s => s>=70?'#1D9E75':s>=40?'#EF9F27':'#E24B4A');
+
+  if (coverageChartInstance) { coverageChartInstance.destroy(); }
+  const canvas = document.getElementById('coverageChart');
+  coverageChartInstance = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{ label:'Coverage %', data:scores, backgroundColor:colors, borderRadius:4 }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%'}}}
+    }
+  });
+}
+
+function buildProfileJSON(weeks) {
+  const profile = {
+    user_skills: getAllSkills(),
+    target_role: currentRole,
+    required_skills: ROLE_SKILLS[currentRole]||[],
+    matched_skills: haveSkills,
+    missing_skills: missSkills,
+    match_score_percent: analysisScore,
+    estimated_learning_weeks: weeks,
+    roadmap: missSkills.map((s,i)=>({
+      priority: i+1, skill:s,
+      duration: (ROADMAP_DB[s]||{week:'2 weeks'}).week,
+      resources: (ROADMAP_DB[s]||{resources:'Online tutorials'}).resources
+    })),
+    analyzed_at: new Date().toISOString()
+  };
+  document.getElementById('profileJSON').textContent = JSON.stringify(profile, null, 2);
+  window._profile = profile;
+}
+
+function exportProfile() {
+  if (!window._profile) return;
+  const blob = new Blob([JSON.stringify(window._profile, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='skill-gap-profile.json'; a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
